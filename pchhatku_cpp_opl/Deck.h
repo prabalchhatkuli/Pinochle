@@ -34,7 +34,7 @@ public:
 
 private:
 	//constant arrays for the deck
-	const int FACES[6] = { 9, 11, 12, 13, 10, 1 };
+	const char FACES[6] = { '9', 'J', 'Q', 'K', 'X', 'A' };
 	const char SUITS[4] = {'H','S','C','D'};
 
 	//cards in deck

@@ -13,14 +13,14 @@ public:
 	Card(unsigned int cardFace, char cardSuit);
 
 	//accessors for face, suit, and points of cards
-	unsigned int getCardFace() { return cardFace; };
+	char getCardFace() { return cardFace; };
 	char getCardSuit() { return cardSuit; };
 	unsigned int getCardPoints() { return cardPoints; }
 
 private:
 
 	//member variable declaration
-	unsigned int cardFace;
+	char cardFace;
 	char cardSuit;
 	unsigned int cardPoints;
 	

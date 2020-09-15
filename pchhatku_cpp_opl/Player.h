@@ -1,6 +1,7 @@
 #pragma once
 #include<iostream>
 #include<vector>
+#include<algorithm>
 #include "Card.h"
 
 using namespace std;
@@ -12,13 +13,16 @@ public:
 	Player();
 
 	//display player cards
-	void displayPlayerCards();
+	void displayPlayerCards(bool);
 
 	//method to make a move including menu choices
 	void play();
 
 	//method to call a meld
-	void callMeld();
+	void callMeld(Card*);
+
+	//method to evaluate the meld made by player
+	bool evaluateMeld(Card*);
 
 	//method to add to the player's Hand
 	void addToHand(Card*);
@@ -27,7 +31,7 @@ public:
 	void makeMove();
 
 	//method to reset player hand
-	void resetHand();
+	void resetHand() { playerHand.clear(); };
 
 	//get the cards chosen by user during the move
 	vector<Card*> getPlayedCards() { return playedCards; };
@@ -48,6 +52,9 @@ private:
 
 	//meld pile: cards used for meld
 	vector<Card*> meldPile;
+
+	//melds
+	//variable to store the melds and corresponding cards for those melds
 
 	//chosen cards: when a player chooses one/many card at a move/meld
 	vector<Card*> playedCards;

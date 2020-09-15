@@ -61,11 +61,11 @@ void Round::startRound()
 
 	//round loop start
 	cout << "HUMAN Cards::" << endl<<endl;
-	parentGame->listOfPlayers[0]->displayPlayerCards();
+	parentGame->listOfPlayers[0]->displayPlayerCards(false);
 	cout << endl << endl;
 
 	cout << endl << "COMPUTER Cards::" << endl<<endl;
-	parentGame->listOfPlayers[1]->displayPlayerCards();
+	parentGame->listOfPlayers[1]->displayPlayerCards(false);
 	cout << endl << endl;
 
 	cout << "**TRUMP CARD** ::" << endl;
@@ -117,7 +117,7 @@ void Round::startRound()
 
 
 		//winner can make meld if they want
-		parentGame->listOfPlayers[nextTurn]->callMeld();
+		parentGame->listOfPlayers[nextTurn]->callMeld(trumpCard);
 
 		//winner starts the next set of turns
 		remainingTurns--;
@@ -131,6 +131,7 @@ void Round::startRound()
 	parentGame->listOfPlayers[1]->resetHand();
 
 }
+
 
 //process player moves at the end of a set of turns
 //returns the index of the winning player

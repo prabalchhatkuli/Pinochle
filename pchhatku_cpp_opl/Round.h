@@ -64,5 +64,4 @@ private:
 	//variable for pointer to current game
 	Game* parentGame;
 	
-
 };

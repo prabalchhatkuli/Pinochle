@@ -18,17 +18,17 @@ Card::Card(unsigned int cardFace, char cardSuit)
 
 	switch (cardFace)
 	{
-	case 9: cardPoints = 0;
+	case '9': cardPoints = 0;
 		break;
-	case 11: cardPoints = 2;
+	case 'J': cardPoints = 2;
 		break;
-	case 12: cardPoints = 3;
+	case 'Q': cardPoints = 3;
 		break;
-	case 13: cardPoints = 4;
+	case 'K': cardPoints = 4;
 		break;
-	case 10: cardPoints = 10;
+	case 'X': cardPoints = 10;
 		break;
-	case 1: cardPoints = 11;
+	case 'A': cardPoints = 11;
 		break;
 
 	default:
