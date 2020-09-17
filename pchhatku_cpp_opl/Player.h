@@ -2,6 +2,8 @@
 #include<iostream>
 #include<vector>
 #include<algorithm>
+#include <map>
+#include <unordered_map>
 #include "Card.h"
 
 using namespace std;
@@ -19,13 +21,16 @@ public:
 	void play();
 
 	//method to call a meld
-	void callMeld(Card*);
+	unsigned int callMeld(Card*);
 
 	//method to evaluate the meld made by player
 	bool evaluateMeld(Card*);
 
 	//method to add to the player's Hand
-	void addToHand(Card*);
+	void addToHand(Card* newCard) { playerHand.push_back(newCard); }
+
+	//method to add to capture pile
+	void addToCapturePile(Card* captureCard) { playerCapturePile.push_back(captureCard); }
 
 	//method to make a move
 	void makeMove();
@@ -41,6 +46,12 @@ public:
 
 private:
 	//variable declarations
+
+	//constants
+	const map<int, string> MELDS= {
+		{1,"flush "},{2,"royal marriage"},{3,"marriage"},{4,"dix"},{5,"four Aces"},{6,"four Kings"},{7,"four Queens"},{8,"four Jacks"},{9,"Pinochle"}
+	};
+
 	//player hand list
 	vector<Card*> playerHand;
 
@@ -55,6 +66,10 @@ private:
 
 	//melds
 	//variable to store the melds and corresponding cards for those melds
+
+	map<unsigned int, vector<vector<Card*>>> meldToCardMap;	//what cards does a meld have
+	unordered_map<Card*, vector<unsigned int>> cardToMeldMap;  //which melds does a card belong to
+
 
 	//chosen cards: when a player chooses one/many card at a move/meld
 	vector<Card*> playedCards;

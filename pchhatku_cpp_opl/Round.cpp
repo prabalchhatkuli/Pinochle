@@ -108,21 +108,25 @@ void Round::startRound()
 		{
 			cout << "COMPUTER wins:" << endl;
 		}
-
 		cout <<" Player: "<< nextTurn <<" wins "<< endl << endl;
-
 		cout << "" << endl;
+
+		//add both user's played cards to the capture pile of winner
+		parentGame->listOfPlayers[nextTurn]->addToCapturePile( parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0] );
+		parentGame->listOfPlayers[nextTurn]->addToCapturePile(parentGame->listOfPlayers[(0 == nextTurn) ? 1 : 0]->getPlayedCards()[0]);
+
+		//clear player cards from the Played Cards
 		parentGame->listOfPlayers[nextTurn]->clearPlayedCards();
 		parentGame->listOfPlayers[(0 == nextTurn) ? 1 : 0]->clearPlayedCards();
 
 
 		//winner can make meld if they want
+		//this returns the score of the meld, so it is added to the current round score
 		parentGame->listOfPlayers[nextTurn]->callMeld(trumpCard);
+
 
 		//winner starts the next set of turns
 		remainingTurns--;
-		
-
 	}
 	
 	//round loop end
