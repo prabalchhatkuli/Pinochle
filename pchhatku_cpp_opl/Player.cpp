@@ -21,7 +21,7 @@ void Player::displayPlayerCards(bool showDefinitions)
 		
 	}
 
-	if (showDefinitions) cout << endl << "Meld" << endl << endl;
+	if (showDefinitions) cout << endl << "Meld Pile" << endl << endl;
 	//displaying meld cards
 	for (vector<Card*>::iterator it = meldPile.begin(); it != meldPile.end(); ++it)
 	{
@@ -29,6 +29,47 @@ void Player::displayPlayerCards(bool showDefinitions)
 
 	}
 	cout << endl;
+
+	//display card to meld map
+	cout << "Card to meld map:" << endl;
+	for (auto it = cardToMeldMap.begin(); it != cardToMeldMap.end(); ++it)
+	{
+		//display card
+		std::cout << " " << it->first->getCardFace()<< it->first->getCardSuit()<< " : "<<"[";
+		for (int i=0 ; i < (it->second).size(); i++)
+		{
+			cout << (it->second)[i] << ", ";
+		}
+		cout << "]" << endl;
+	}
+		
+	//display meld to card map
+	cout << "Meld to card map:" << endl;
+	for (auto it = meldToCardMap.begin(); it != meldToCardMap.end(); ++it)
+	{
+		//display meld
+		std::cout << " " << it->first << ":" << "[";
+		cout << (it->second).size() << endl;
+		for (int i = 0; i < (it->second).size(); i++)
+		{
+			cout << "[";
+			for (int j = 0; j < (it->second)[i].size(); j++)
+			{
+				cout << (it->second)[i][j]->getCardFace() << (it->second)[i][j]->getCardSuit() << ", ";
+			}
+			cout << "]," << endl;
+		}
+		cout << "]" << endl;
+	}
+
+	//display capture pile
+	cout << "Player capture pile" << endl;
+	for (int i = 0; i < playerCapturePile.size(); i++)
+	{
+		cout << playerCapturePile[i]->getCardFace() << playerCapturePile[i]->getCardSuit() << ", ";
+	}
+	cout << endl;
+
 }
 
 //make a move for the player
@@ -71,7 +112,7 @@ void Player::makeMove()
 	unsigned int cardNumber;
 
 	displayPlayerCards(false);
-
+	cout << "your score till now: " << playerRoundScore << "/" << playerScore << endl;
 	cout << "Make a move(option):" << endl << endl;
 	//input card for the move
 	cout << "select a card to run: 0 - " << (playerHand.size() + meldPile.size() - 1) << endl;
@@ -95,7 +136,7 @@ void Player::makeMove()
 }
 
 //give player permission for a meld
-unsigned int Player::callMeld(Card* trumpCard)
+void Player::callMeld(Card* trumpCard)
 {
 	//variable declaration
 	char isMelding;
@@ -151,7 +192,13 @@ unsigned int Player::callMeld(Card* trumpCard)
 	//evaluate the meld
 	unsigned int meldIndex = evaluateMeld(trumpCard);
 
-	//evaluate the result
+	//empty the played cards
+	playedCards.clear();
+
+	//add the score to the current round score
+	playerRoundScore += MELD_POINTS.at(meldIndex); //.at() is used because MELD_POINT is a constant
+
+	//process the move of card and such
 	if ( 0 != meldIndex )
 	{   // meld can be made
 
@@ -171,7 +218,7 @@ unsigned int Player::callMeld(Card* trumpCard)
 		for (vector<unsigned int>::iterator it = listOfChosenIndex.begin(); it != listOfChosenIndex.end(); ++it)
 		{
 			//if the card is in meld pile
-			if ((*it-removeCount) >= playerHand.size())//card is in meld pile
+			if ((*it-removeCount) >= playerHand.size())
 			{
 				unordered_map<Card*, vector<unsigned int>>::iterator foundCard = cardToMeldMap.find(meldPile[*it-playerHand.size()-removeCount]);
 				
@@ -201,22 +248,21 @@ unsigned int Player::callMeld(Card* trumpCard)
 
 				//increment counter
 				removeCount++;
-
 			}
+		}
 
-			//find a meld of the same index if it already exists
-			map<unsigned int, vector<vector<Card*>>>::iterator foundMeld = meldToCardMap.find(meldIndex);
+		//find a meld of the same index if it already exists
+		map<unsigned int, vector<vector<Card*>>>::iterator foundMeld = meldToCardMap.find(meldIndex);
 
-			//if found append the list to the matrix
-			if (foundMeld != meldToCardMap.end())
-			{
-				(foundMeld->second).push_back(cardsOfAMeld);
-			}
-			//else, create a new entry in the map
-			else
-			{
-				meldToCardMap.insert(pair<unsigned int, vector<vector<Card*>>>(meldIndex, { cardsOfAMeld }));
-			}
+		//if found append the list to the matrix
+		if (foundMeld != meldToCardMap.end())
+		{
+			(foundMeld->second).push_back(cardsOfAMeld);
+		}
+		//else, create a new entry in the map
+		else
+		{
+			meldToCardMap.insert(pair<unsigned int, vector<vector<Card*>>>(meldIndex, { cardsOfAMeld }));
 		}
 
 		//increase player score
@@ -229,8 +275,115 @@ unsigned int Player::callMeld(Card* trumpCard)
 	}
 }
 
+//process/move played cards for the user after the turn has been completed
+void Player::processPlayedCards() {
+	//process played cards
+	//process the hand and meld cards,
+
+	//if the played card is in hand pile: 1)it can either be only part of a hand, 2) it can be part of a hand and an earlier meld
+	vector<Card*>::iterator ip = std::find(playerHand.begin(), playerHand.end(), playedCards[0]);
+	if (ip != playerHand.end())
+	{
+		//check if it is in the card to meld map as well	
+		unordered_map<Card*, vector<unsigned int>>::iterator im = cardToMeldMap.find(playedCards[0]);
+
+		//if true remove from meld pile also
+		if (im != cardToMeldMap.end())
+		{
+			cardToMeldMap.erase(im);
+		}
+
+		//remove card from hand pile
+		playerHand.erase(ip);
+	}
+	else//else: the cards are in an active meld
+	{
+		//find the card entry in cardToMeldMap
+		unordered_map<Card*, vector<unsigned int>>::iterator im = cardToMeldMap.find(playedCards[0]);
+
+		//for each of the card's meld
+		for (int i = 0; i < (im->second).size(); i++)
+		{
+			//temporary variable which stores the current meld for the chosen card
+			unsigned int tempMeld = (im->second)[i];
+
+			//Among the vectors in the entry in meldToCardMap, find the one in which this card has been used
+			for (int j = 0; j < meldToCardMap[tempMeld].size(); j++)
+			{
+				vector<Card*>::iterator iv = find(((meldToCardMap[tempMeld])[j]).begin(), ((meldToCardMap[tempMeld])[j]).end(), playedCards[0]);
+				
+				//iv is the iterator to the found vector: this needs to be erased from ((meldToCardMap[tempMeld])[j])
+				if (iv != ((meldToCardMap[tempMeld])[j]).end())
+				{
+					//for all other cards in this vector: we need to decide whether to send them to the hand or not
+					for (int k = 0; k < ((meldToCardMap[tempMeld])[j]).size(); k++)
+					{
+						//if same card, continue
+						if(playedCards[0] == (meldToCardMap[tempMeld])[j][k])
+						{
+							continue;
+						}
+						//find it in the cardToMeldMap
+						unordered_map<Card*, vector<unsigned int>>::iterator meldCheckIterator = cardToMeldMap.find((meldToCardMap[tempMeld])[j][k]);
+
+						//flag to see if variable found
+						bool isfound = false;
+
+						//go to each of the mentioned meld to find the card
+						for (int l = 0; l < (meldCheckIterator->second).size(); l++)
+						{
+							//temporary variable for checking if the meld exists in the map
+							unsigned int tempCheckMeld = (meldCheckIterator->second)[l];
+
+							//if the checkmeld is the same as parent meld, continue, because we are going to remove from this
+							if (tempMeld == tempCheckMeld) continue;
+
+							for (int m = 0; m < meldToCardMap[tempCheckMeld].size(); m++)
+							{
+								vector<Card*>::iterator findIterator = find(((meldToCardMap[tempCheckMeld])[m]).begin(), ((meldToCardMap[tempCheckMeld])[m]).end(), (meldToCardMap[tempMeld])[j][k]);
+								//if found:
+								if (findIterator != ((meldToCardMap[tempCheckMeld])[m]).end())
+								{
+									//only erase the original vector from the original meld entry in meldToCard map
+									//no need to send the to player's hand
+									isfound = true;
+									break;
+								}
+							}
+
+							if (isfound)
+							{
+								break;
+							}
+						}
+						//if the card is not found in any of the listed meld, it means that the melds are no longer active
+						//send the card to the user's hand
+						if (!isfound)
+						{
+							addToHand((meldToCardMap[tempMeld])[j][k]);
+							//find in meld pile
+							vector<Card*>::iterator findInMeldIterator = find(meldPile.begin(), meldPile.end(), (meldToCardMap[tempMeld])[j][k]);
+							//remove from meld pile
+							if (findInMeldIterator != meldPile.end())
+								meldPile.erase(findInMeldIterator);
+							else
+								cout << "Error!! not found in the pile" << endl;
+						}
+						//else do nothing
+					}
+					//erase iv from the vector ((meldToCardMap[tempMeld])[j])
+					((meldToCardMap[tempMeld])[j]).erase(iv);
+				}
+			}
+		}
+		//find the corresponding entries in meldToCardMap
+		//remove the vectors from the entry that has the card
+	}
+
+}
+
 //evaluates meld from the played cards
-bool Player::evaluateMeld(Card* trumpCard)
+unsigned int Player::evaluateMeld(Card* trumpCard)
 {
 	//check if at least one card has been used from the hand, otherwise do not continue, show that meld cannot happen
 	unsigned int cardsInMeldPile = 0;
@@ -379,6 +532,7 @@ bool Player::evaluateMeld(Card* trumpCard)
 			//find the meld cards
 			unordered_map<Card*, vector<unsigned int>>::iterator foundCard = cardToMeldMap.find(*it);
 
+			//if card is found in cardToMeldMap
 			if (foundCard != cardToMeldMap.end())
 			{
 				//check if the possibleMeld is in the vector of Melds for a card

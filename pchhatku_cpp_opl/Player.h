@@ -21,10 +21,10 @@ public:
 	void play();
 
 	//method to call a meld
-	unsigned int callMeld(Card*);
+	void callMeld(Card*);
 
 	//method to evaluate the meld made by player
-	bool evaluateMeld(Card*);
+	unsigned int evaluateMeld(Card*);
 
 	//method to add to the player's Hand
 	void addToHand(Card* newCard) { playerHand.push_back(newCard); }
@@ -32,14 +32,34 @@ public:
 	//method to add to capture pile
 	void addToCapturePile(Card* captureCard) { playerCapturePile.push_back(captureCard); }
 
+	//method to add to the round score
+	void addToRoundScore(int score) { playerRoundScore += score; }
+
+	//method to get round score
+	unsigned int getRoundScore() { return playerRoundScore; }
+
 	//method to make a move
 	void makeMove();
 
-	//method to reset player hand
-	void resetHand() { playerHand.clear(); };
+	//method to reset all information stored for the user for a round
+	void resetRoundInfo() { playerHand.clear();
+							meldPile.clear();
+							playedCards.clear();
+							playerRoundScore = 0;
+							cardToMeldMap.clear();
+							meldToCardMap.clear();
+							playerCapturePile.clear();}
+
+	//method to reset capture pile
+
+	//method to process played cards
+	void processPlayedCards();
 
 	//get the cards chosen by user during the move
-	vector<Card*> getPlayedCards() { return playedCards; };
+	vector<Card*> getPlayedCards() { return playedCards; }
+
+	//get the cards in hand excluding melds
+	vector<Card*> getHandCards() { return playerHand; }
 
 	//clear the played cards
 	void clearPlayedCards() { playedCards.clear(); }
@@ -52,11 +72,18 @@ private:
 		{1,"flush "},{2,"royal marriage"},{3,"marriage"},{4,"dix"},{5,"four Aces"},{6,"four Kings"},{7,"four Queens"},{8,"four Jacks"},{9,"Pinochle"}
 	};
 
+	const map<unsigned int, unsigned int> MELD_POINTS = {
+		{1, 150},{2, 40},{3, 20},{4, 10},{5, 100},{6,80},{7, 60},{8, 40},{9, 40}
+	};
+
 	//player hand list
 	vector<Card*> playerHand;
 
 	//player score
 	unsigned int playerScore;
+
+	//player's score for the round
+	unsigned int playerRoundScore;
 
 	//capture pile
 	vector<Card*> playerCapturePile;

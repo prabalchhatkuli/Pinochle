@@ -36,9 +36,17 @@ public:
 	//process the moves made by players on a set of turn
 	unsigned int processPlayerMoves();
 
+	//debug::::display deck
+	void displayDeck() {
+		roundDeck->DisplayDeck();
+	}
+
 	//class destructor
 	~Round()
 	{
+		cout << "delelting round deck" << endl;
+		cout << this->roundDeck << endl;
+		this->roundDeck->DisplayDeck();
 		delete roundDeck;
 	}
 

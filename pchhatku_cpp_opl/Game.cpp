@@ -109,6 +109,9 @@ void Game::startGame()
 			numRounds++;  //increment number of rounds
 			cout << endl << "Starting round: " << numRounds << endl << endl;
 		}
+		//deleting the round object
+		currentRound->displayDeck();
+		delete currentRound;
 
 	} while (1 == menuSelection);
 
