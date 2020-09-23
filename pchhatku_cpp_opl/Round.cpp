@@ -75,11 +75,18 @@ void Round::startRound()
 	//cout << endl << "Remaining stock cards:" << endl << endl;
 	//roundDeck->DisplayDeck();
 
+	//for debuggimns
+	nextTurn = 1;/////////////////////////////////////////////////////////////need to remove
+
 	while (-12 != remainingTurns)
 	{
 		unsigned int turnTaken = 2;
 		while (0 != turnTaken)
 		{
+			//for debugging
+			//nextTurn = 1;/////////////////////////////////////////////////////////need to remove
+
+
 			if (nextTurn == 0)
 			{
 				cout << "Turn of HUMAN:" << endl;
@@ -88,15 +95,26 @@ void Round::startRound()
 			{
 				cout << "Turn of COMPUTER:" << endl;
 			}
-			//play for the user : if the user chooses to play a card: the card will be saved to the vector
-			parentGame->listOfPlayers[nextTurn]->play();
+
+			//variable to store the leadPlayerCard 
+			vector<Card*> leadPlayerCard;
+
+			//send the lead player card to the chase player, if leadPlayer has chosen a card, during the chase player's turn the card will be opposite of nextTurn
+			if (1 == turnTaken)
+			{
+				leadPlayerCard.push_back(parentGame->listOfPlayers[(0 == nextTurn) ? 1 : 0]->getPlayedCards()[0]);
+			}
+
+			//play for the user : if the user chooses to play a card: the card will be saved to the vector of played cards in the player
+			parentGame->listOfPlayers[nextTurn]->play(leadPlayerCard, trumpCard);
+
 			if (nextTurn == 0)
 			{
-				cout << "Human Chose" << parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0]->getCardFace() << parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0]->getCardSuit() << endl;
+				cout << "Human Chose: " << parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0]->getCardFace() << parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0]->getCardSuit() << endl;
 			}
 			else
 			{
-				cout << "Computer Chose" << parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0]->getCardFace() << parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0]->getCardSuit() << endl;
+				cout << "Computer Chose: " << parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0]->getCardFace() << parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0]->getCardSuit() << endl;
 			}
 			//change the user
 			nextTurn = (0 == nextTurn) ? 1 : 0;
@@ -124,9 +142,13 @@ void Round::startRound()
 		parentGame->listOfPlayers[nextTurn]->addToCapturePile( parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0] );
 		parentGame->listOfPlayers[nextTurn]->addToCapturePile(parentGame->listOfPlayers[(0 == nextTurn) ? 1 : 0]->getPlayedCards()[0]);
 
-		//add points of the cards to the winner player's round score
+		//add points of both the played cards to the winner player's round score
 		parentGame->listOfPlayers[nextTurn]->addToRoundScore(parentGame->listOfPlayers[nextTurn]->getPlayedCards()[0]->getCardPoints());
 		parentGame->listOfPlayers[nextTurn]->addToRoundScore(parentGame->listOfPlayers[(0 == nextTurn) ? 1 : 0]->getPlayedCards()[0]->getCardPoints());
+
+		//process played Cards for both user
+		parentGame->listOfPlayers[nextTurn]->processPlayedCards();
+		parentGame->listOfPlayers[(0 == nextTurn) ? 1 : 0]->processPlayedCards();
 
 		//clear played cards from the Played Cards because of the end of turns
 		parentGame->listOfPlayers[nextTurn]->clearPlayedCards();

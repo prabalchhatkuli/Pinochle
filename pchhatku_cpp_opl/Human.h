@@ -9,6 +9,19 @@ class Human : public Player
 public:
 	//class constructor
 	Human();
+
+	//destructor
+	//~Human() {};
+
+	//function to start the game for the player
+	void play(vector<Card*>, Card*);
+
+	//method to make a move
+	void makeMove();
+
+	//method to call a meld
+	void callMeld(Card*);
+
 private:
 
 };

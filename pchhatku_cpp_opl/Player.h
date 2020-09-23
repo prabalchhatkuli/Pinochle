@@ -4,6 +4,7 @@
 #include<algorithm>
 #include <map>
 #include <unordered_map>
+#include <string>
 #include "Card.h"
 
 using namespace std;
@@ -18,10 +19,10 @@ public:
 	void displayPlayerCards(bool);
 
 	//method to make a move including menu choices
-	void play();
+	virtual void play(vector<Card*>, Card*) = 0;
 
 	//method to call a meld
-	void callMeld(Card*);
+	virtual void callMeld(Card*) = 0;
 
 	//method to evaluate the meld made by player
 	unsigned int evaluateMeld(Card*);
@@ -39,7 +40,7 @@ public:
 	unsigned int getRoundScore() { return playerRoundScore; }
 
 	//method to make a move
-	void makeMove();
+	virtual void makeMove() = 0;
 
 	//method to reset all information stored for the user for a round
 	void resetRoundInfo() { playerHand.clear();
@@ -64,7 +65,7 @@ public:
 	//clear the played cards
 	void clearPlayedCards() { playedCards.clear(); }
 
-private:
+protected:
 	//variable declarations
 
 	//constants
@@ -100,6 +101,9 @@ private:
 
 	//chosen cards: when a player chooses one/many card at a move/meld
 	vector<Card*> playedCards;
+
+	//vector to store the list of possible melds for a list of cards
+	vector<pair<vector<Card*>, unsigned int>> listOfPossibleMelds;
 
 	//virtual methods necessary for human and computer
 	//method to make a move

@@ -5,8 +5,8 @@ Game::Game()
 {
 	// member variable initializations for constructor
 	//creating player objects
-	listOfPlayers.push_back(new Player());
-	listOfPlayers.push_back(new Player());
+	listOfPlayers.push_back(new Human());
+	listOfPlayers.push_back(new Computer());
 
 	//player scores
 	//initializing all scores to 0
