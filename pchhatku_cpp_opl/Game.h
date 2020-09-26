@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Human.h"
 #include "Computer.h"
+#include <fstream>
 
 using namespace std;
 

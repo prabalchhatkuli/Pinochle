@@ -78,6 +78,9 @@ void Round::startRound()
 	//for debuggimns
 	nextTurn = 1;/////////////////////////////////////////////////////////////need to remove
 
+	//if the player chooses an option
+	unsigned int playerRoundMenuChoice = 999;
+
 	while (-12 != remainingTurns)
 	{
 		unsigned int turnTaken = 2;
@@ -106,7 +109,16 @@ void Round::startRound()
 			}
 
 			//play for the user : if the user chooses to play a card: the card will be saved to the vector of played cards in the player
-			parentGame->listOfPlayers[nextTurn]->play(leadPlayerCard, trumpCard);
+			switch (parentGame->listOfPlayers[nextTurn]->play(leadPlayerCard, trumpCard))
+			{
+			case 0: break;
+			case 1: //save game
+				parentGame->saveGame();
+				break;
+			case 3: //quit game
+				parentGame->quitGame();
+				break;
+			}
 
 			if (nextTurn == 0)
 			{

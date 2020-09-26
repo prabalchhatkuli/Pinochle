@@ -19,7 +19,25 @@ public:
 	void displayPlayerCards(bool);
 
 	//method to make a move including menu choices
-	virtual void play(vector<Card*>, Card*) = 0;
+	virtual unsigned int play(vector<Card*>, Card*) = 0;
+
+	//method to add roundscore to total score
+	void addToGameScore(){playerScore += playerRoundScore;}
+
+	//method to get game score
+	unsigned int getGameScore() { return playerScore; }
+
+	//method to get round Score
+	unsigned int getRoundScore() { return playerRoundScore; }
+
+	//method to get all cards in the hand
+	vector<Card*> getHandCards() { return playerHand; }
+
+	//method to get all capture cards for the player
+	vector<Card*> getCaptureCards() { return playerCapturePile; }
+
+	//method to get all the player's cards in a string
+	string getMeldString();
 
 	//method to call a meld
 	virtual void callMeld(Card*) = 0;
@@ -36,11 +54,8 @@ public:
 	//method to add to the round score
 	void addToRoundScore(int score) { playerRoundScore += score; }
 
-	//method to get round score
-	unsigned int getRoundScore() { return playerRoundScore; }
-
 	//method to make a move
-	virtual void makeMove() = 0;
+	//virtual void makeMove() = 0;
 
 	//method to reset all information stored for the user for a round
 	void resetRoundInfo() { playerHand.clear();
@@ -59,8 +74,6 @@ public:
 	//get the cards chosen by user during the move
 	vector<Card*> getPlayedCards() { return playedCards; }
 
-	//get the cards in hand excluding melds
-	vector<Card*> getHandCards() { return playerHand; }
 
 	//clear the played cards
 	void clearPlayedCards() { playedCards.clear(); }

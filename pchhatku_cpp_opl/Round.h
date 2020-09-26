@@ -41,6 +41,15 @@ public:
 		roundDeck->DisplayDeck();
 	}
 
+	//get trumpCard()
+	Card* getTrumpCard() { return trumpCard; }
+
+	//get Round deck
+	Deck* getRoundDeck() { return roundDeck; }
+
+	//get nextTurn
+	unsigned int getNextPlayer() { return nextTurn; }
+
 	//class destructor
 	~Round()
 	{

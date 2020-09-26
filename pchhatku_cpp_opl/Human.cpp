@@ -8,34 +8,38 @@ Human::Human()
 
 //play function for human
 //make a move for the player
-void Human::play(vector<Card*> leadCard, Card* trumpCard)
+unsigned int Human::play(vector<Card*> leadCard, Card* trumpCard)
 {
 	//variablt to store what the user did in their turn
-	unsigned int turnChoice = 2;
+	unsigned int turnChoice;
 
 	//ask player to make a move
-	/*cout << "Please select an option below:" << endl;
+	cout << "Please select an option below:" << endl;
 	cout << "1. Save the game" << endl;
 	cout << "2. Make a move" << endl;
 	cout << "3. Ask for help" << endl;
-	cout << "4. Quit the game" << endl;*/
+	cout << "4. Quit the game" << endl;
 
 	//receiving user input and validating using the parentGame method
-	//turnChoice = parentGame->validateMenuInput(1, 2);
+	cout << "input:";
+	cin >> turnChoice;
 
 	//switch statement for user input
 	switch (turnChoice)
 	{
 	case 1:
-		break;
+		return 1;
 	case 2:
-		return makeMove();
-		break;
+		makeMove();
+		return 0;
 	case 3:
-		break;
+		//implement help function for human
+		
+		return play(leadCard, trumpCard);
 	case 4:
-		break;
+		return 3;
 	default:
+		cerr << "Invalid input" << endl;
 		break;
 	}
 }

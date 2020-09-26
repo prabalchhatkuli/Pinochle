@@ -76,7 +76,7 @@ void Game::startGame()
 			break;
 
 		//selecting option 3 quits the game
-		case 3: cout << "Closing Pinocle..." << endl;
+		case 3: quitGame();
 			return;
 	}
 
@@ -161,7 +161,23 @@ void Game::quitGame()
 {
 	cout << "quit game option chosen" << endl;
 
-	//display game info: winner scores, losers
+	vector<unsigned int> totalScoresForPlayers;
+
+	unsigned int winnerIndex = 0;
+
+	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
+	{
+		listOfPlayers[i]->addToGameScore();
+	}
+
+	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
+	{
+		if (listOfPlayers[i]->getGameScore() > listOfPlayers[winnerIndex]->getGameScore())
+			winnerIndex = i;
+	}
+
+	cout << "The winner is :" << winnerIndex ? "Computer" : "Human";
+	
 
 	exit(0);
 }
@@ -179,5 +195,111 @@ void Game::loadGame()
 
 void Game::saveGame()
 {
-	cout << "Game saved to a file" << endl;
+	cout << "Starting to save game to a file" << endl;
+	
+	//variable for the name of the save file
+	string filename;
+
+	//get the name of file to output
+	//make sure to get a .txt extension at the end
+	cout << "Please enter the name of the savefile with .txt extension: " << endl;;
+	do
+	{
+		if (cin.peek() == '\n')
+		{
+			cin.ignore();
+		}
+		//cin.ignore();
+		getline(cin, filename);
+	} while (!(filename.length() > 4 && ".txt" == (filename.substr(filename.length() - 4))));
+	
+	//file write stream object //open the file to write
+	ofstream output(filename.c_str());
+
+	//start writing to the file
+
+	//Round: 1
+
+	//Computer :
+	//Score : 0 / 0
+	//Hand : QH KH QC KD JH XH QS 9H XC JS QD KC
+	//Capture Pile :
+	//Melds:
+
+	//Human:
+	//Score: 0 / 22
+	//Hand : AH AC AS AD XH AC JH QC KD 9S 9D
+	//Capture Pile : XC JC
+	//Melds : 9H
+
+	//Trump Card : AH
+	//Stock : KS QH 9C 9S XD KC JD JS KS QD XS 9C JC KH AD 9D AS XS XD JD QS
+
+	//Next Player : Human
+
+	output << "Round: " << numRounds << endl;
+	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
+	{
+		if (1 == i)
+			output << endl << "Computer:" << endl;
+		else
+			output << endl << "Human" << endl;
+
+		//scores
+		output << "\tScore: " << listOfPlayers[i]->getGameScore() <<" / "<< listOfPlayers[i]->getRoundScore() << endl;
+		//hand cards
+		output << "\tHand:";
+		//temporary vector to store hlist of cards
+
+		//for hand cards
+		vector<Card*> tempCards = (listOfPlayers[i]->getHandCards());
+		for (int j = 0; j < tempCards.size(); j++)
+		{
+			output << " " << tempCards[j]->getCardFace() << tempCards[j]->getCardSuit();
+		}
+
+		output << endl;
+		output << "\tCapture Pile:";
+		//for the player's capture pile
+		tempCards = listOfPlayers[i]->getCaptureCards();
+		for (int j = 0; j < tempCards.size(); j++)
+		{
+			output << " " << tempCards[j]->getCardFace() << tempCards[j]->getCardSuit();
+		}
+
+		//for the player's meld pile
+		output << endl;
+		output << "\tMelds:";
+		output << listOfPlayers[i]->getMeldString();
+		output << endl;
+				
+	}
+
+	//round information
+	output << "trump card:";
+
+	output << " "<<currentRound->getTrumpCard()->getCardFace() << currentRound->getTrumpCard()->getCardFace() << endl;
+
+	//Stock Cards:
+	output << endl << "Stock Cards";
+
+	//get all cards in stock pile
+	deque<Card*> stockCards = currentRound->getRoundDeck()->getStockCards();
+
+	//output into the file
+	for (int i = 0; i < stockCards.size(); i++) {
+		output << " " << stockCards[i]->getCardFace() << stockCards[i]->getCardSuit();
+	}
+
+	//save next player
+	output <<endl<< "next player:" << endl;
+
+	output << " " << currentRound->getNextPlayer() ? "Computer" : "Human";
+
+	output.close();
+
+	cout << "Game saved";
+
+	exit(0);
+
 }

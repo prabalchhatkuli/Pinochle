@@ -8,7 +8,39 @@ Computer::Computer()
 
 //play function for human
 //make a move for the player
-void Computer::play(vector<Card*> leadCard, Card* trumpCard)
+unsigned int Computer::play(vector<Card*> leadCard, Card* trumpCard)
+{
+	//variablt to store what the user did in their turn
+	unsigned int turnChoice;
+
+	//ask player to make a move
+	cout << "Please select an option below:" << endl;
+	cout << "1. Save the game" << endl;
+	cout << "2. Make a move" << endl;
+	cout << "3. Quit the game" << endl;
+
+	//receiving user input and validating using the parentGame method
+	cout << "input:";
+	cin >> turnChoice;
+
+	//switch statement for user input
+	switch (turnChoice)
+	{
+	case 1:
+		return 1;
+	case 2:
+		makeMove(leadCard, trumpCard);
+		return 0;
+	case 3:
+		return 3;
+	default:
+		cerr << "Invalid input" << endl;
+		break;
+	}
+}
+
+//player makes a move
+void Computer::makeMove(vector<Card*> leadCard, Card* trumpCard)
 {
 	//decide which card to play on its turn
 	//if leadCard is given, the computer is the chase player
@@ -16,7 +48,7 @@ void Computer::play(vector<Card*> leadCard, Card* trumpCard)
 	{
 		//process for chase player
 		//when it is the chase player of the turn - it will want to try to win the turn as inexpensively as possible, i.e., use Trump cards only when absolutely necessary.
-		
+
 		//find the cheapest card which will win the turn
 		playedCards.push_back(getCheapestCard(leadCard[0], trumpCard));
 	}
@@ -28,36 +60,6 @@ void Computer::play(vector<Card*> leadCard, Card* trumpCard)
 	}
 
 	return;
-}
-
-//player makes a move
-void Computer::makeMove()
-{
-	//variable declaration
-	unsigned int cardNumber;
-
-	displayPlayerCards(false);
-	cout << "your score till now: " << playerRoundScore << "/" << playerScore << endl;
-	cout << "Make a move(option):" << endl << endl;
-	//input card for the move
-	cout << "select a card to run: 0 - " << (playerHand.
-		size() + meldPile.size() - 1) << endl;
-
-	cin >> cardNumber;
-
-	//validate cardNumber
-	//if chosen card has index less than the size of playerhand, the card is in the playerHand, otherwise in the meld pile
-	//the card needs to be inserted into the playedCards and removed from the hand or the meld
-	if (cardNumber < playerHand.size())
-	{
-		playedCards.push_back(playerHand[cardNumber]);
-		playerHand.erase(playerHand.begin() + cardNumber);
-	}
-	else
-	{
-		playedCards.push_back(meldPile[cardNumber - playerHand.size()]);
-		meldPile.erase(meldPile.begin() + (cardNumber - playerHand.size()));
-	}
 
 }
 
@@ -201,12 +203,12 @@ void Computer::callMeld(Card* trumpCard)
 Card* Computer::getCheapestCard(Card* leadCard, Card* trumpCard)
 {
 	//find all playable cards which will win the turn
-	vector<Card*> winningCards = findPlayableCards(leadCard, trumpCard);
+	vector<Card*> winningCards = findPlayableCards(leadCard, trumpCard); //winning cards will have all cards, if no winning cards present
  
-	//sort them based on points
+	//sort them based on points on ascending order
 	sort(winningCards.begin(), winningCards.end(), [](Card* &lhs, Card* &rhs)
 	{
-		return (lhs)->getCardPoints() > (rhs)->getCardPoints();
+		return (lhs)->getCardPoints() < (rhs)->getCardPoints();
 	});
 
 	//find the first card on the vector that is not of trump suit

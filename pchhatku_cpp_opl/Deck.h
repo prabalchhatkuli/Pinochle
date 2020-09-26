@@ -27,6 +27,9 @@ public:
 	//Deal card method
 	Card* dealCard();
 
+	//get the remaing listOfCards i.e. stock cards
+	deque<Card*> getStockCards() { return listOfCards; }
+
 	//number of cards in deck
 	unsigned int numberOfCards() {
 		return listOfCards.size();

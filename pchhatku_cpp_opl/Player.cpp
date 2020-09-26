@@ -70,6 +70,9 @@ void Player::displayPlayerCards(bool showDefinitions)
 	}
 	cout << endl;
 
+	//display the meld string
+	cout << getMeldString() << endl;
+
 }
 
 //process/move played cards for the user after the turn has been completed
@@ -339,7 +342,7 @@ unsigned int Player::evaluateMeld(Card* trumpCard)
 	
 	//if meld cards are used and player is trying to make a meld they already made
 			//the meld cannot be allowed
-	if (cardsInMeldPile > 0)
+	if (cardsInMeldPile > 0 && possibleMeld != 0)
 	{
 		for (vector<Card*>::iterator it = playedCards.begin(); it != playedCards.end(); ++it)
 		{
@@ -351,9 +354,11 @@ unsigned int Player::evaluateMeld(Card* trumpCard)
 			{
 				//check if the possibleMeld is in the vector of Melds for a card
 				vector<unsigned int>::iterator ix = find((foundCard->second).begin(), (foundCard->second).end(), possibleMeld);
-				/*if (ix != (foundCard->second).end())
-					cout << "meld already made for this card" << endl;*/
-				return 0;
+				//if found
+				if (ix != (foundCard->second).end())
+				{
+					return 0;
+				}
 			}
 		}
 
@@ -367,4 +372,83 @@ unsigned int Player::evaluateMeld(Card* trumpCard)
 	{
 		return possibleMeld;
 	}
+}
+
+
+//get a string representation of the player's string
+string Player::getMeldString()
+{
+	//declaring and initializing string variable to combine the melds
+	string meldString = "";
+
+	//for each meld in the meld to card map
+	for (map<unsigned int, vector<vector<Card*>>>::iterator im = meldToCardMap.begin(); im != meldToCardMap.end(); im++)
+	{
+		// get the vector of vector of cards
+		vector<vector<Card*>> tempVectorOfAMeld = im->second;
+
+		//if this vector has no size, continue
+		if (0 == tempVectorOfAMeld.size()) continue;
+
+		//save the meld index in a variable
+		unsigned int currentMeld = im->first;
+
+		//for each vector within the tempVectorOfAMeld list
+		for (int i = 0; i < tempVectorOfAMeld.size(); i++)
+		{
+			vector<Card*> vectorWithinVector = tempVectorOfAMeld[i];
+			//for each card in this vector
+			for (int j = 0; j < vectorWithinVector.size(); j++)
+			{
+				//append the card to the output string
+				//vectorWithinVector[j] is the card
+				meldString += " ";
+				meldString += vectorWithinVector[j]->getCardFace();
+				meldString += vectorWithinVector[j]->getCardSuit();
+				
+
+				//check if an asterisk is required
+				//flag to see if the card was used in another active meld
+				bool isFound = false;
+
+				//go to the card index in card to meld map
+				vector<unsigned int> meldsForACard = cardToMeldMap[vectorWithinVector[j]];
+
+				//for each meld mentioned for the card
+				for (int k = 0; k < meldsForACard.size(); k++)
+				{
+					//go to the meld to see if another meld with the card is still active
+					if (currentMeld == meldsForACard[k]) continue;
+
+					else
+					{
+						//collection of vectors for this meld
+						vector<vector<Card*>> tempCheckMeldCollection = meldToCardMap[meldsForACard[k]];
+
+						//for the vector of melds hence received
+						for (int l = 0; l < tempCheckMeldCollection.size(); l++)
+						{
+							//iterate the melds to see if the card , vectorWithinVector[j] is in the list
+							vector<Card*>::iterator findIterator = find(tempCheckMeldCollection[l].begin(), tempCheckMeldCollection[l].end(), vectorWithinVector[j]);
+			
+							//if the card is found an asterisk is required, break off the program, go to the next card
+							if (findIterator != tempCheckMeldCollection[l].end())
+							{
+								meldString += '*';
+								isFound = true;
+								break;
+							}
+						}
+						if (isFound)
+							break;
+					}
+				}
+			}
+
+			//insert a comma to separate the melds
+			meldString += ',';
+		}
+
+	}
+	return meldString;
 }

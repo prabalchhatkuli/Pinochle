@@ -14,7 +14,7 @@ public:
 	//~Human() {};
 
 	//function to start the game for the player
-	void play(vector<Card*>, Card*);
+	unsigned int play(vector<Card*>, Card*);
 
 	//method to make a move
 	void makeMove();
