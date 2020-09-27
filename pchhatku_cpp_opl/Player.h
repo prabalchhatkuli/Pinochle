@@ -78,8 +78,36 @@ public:
 	//clear the played cards
 	void clearPlayedCards() { playedCards.clear(); }
 
+
+	//tactics for help and computer player
+
+	//method to call a meld
+	void decideMeld(Card*);
+
+	//returns the cheapest card that will win the turn
+	Card* getCheapestCard(Card*, Card*);
+
+	//method to get a lead card
+	Card* getTacticalCard(Card*);
+
+	//method to get a list of playable cards
+	vector<Card*> findPlayableCards(Card*, Card*);
+
+	//compare a two cards
+	bool compareTwoCards(Card*, Card*, Card*);
+
+	//find total possible meld score from the combination of all cards in a list
+	unsigned int findPossibleScores(vector<Card*>, Card*);
+
+	//function to start recursion
+	void findCombinations(vector<Card*>, unsigned int, unsigned int, unsigned int&, Card*);
+
+	//utility function to recurse and evaluate scores
+	void utilityForMeldCombinations(vector<Card*>, unsigned int, unsigned int, unsigned int, vector<Card*>, unsigned int, unsigned int&, Card*);
+
 protected:
 	//variable declarations
+	string playerName;
 
 	//constants
 	const map<int, string> MELDS= {

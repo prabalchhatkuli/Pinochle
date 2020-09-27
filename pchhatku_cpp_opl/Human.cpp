@@ -4,6 +4,7 @@
 Human::Human()
 {
 	cout << "Human player object created" << endl;;
+	playerName = "H";
 }
 
 //play function for human
@@ -17,7 +18,7 @@ unsigned int Human::play(vector<Card*> leadCard, Card* trumpCard)
 	cout << "Please select an option below:" << endl;
 	cout << "1. Save the game" << endl;
 	cout << "2. Make a move" << endl;
-	cout << "3. Ask for help" << endl;
+	cout << "3. Ask for help (Remember you can only ask for help once)" << endl;
 	cout << "4. Quit the game" << endl;
 
 	//receiving user input and validating using the parentGame method
@@ -34,8 +35,21 @@ unsigned int Human::play(vector<Card*> leadCard, Card* trumpCard)
 		return 0;
 	case 3:
 		//implement help function for human
-		
-		return play(leadCard, trumpCard);
+		Card* temp_card;
+		if (leadCard.size() != 0)
+		{
+			cout << "Here"<<endl<<"______________"<<endl;
+			temp_card = getCheapestCard(leadCard[0], trumpCard);
+		}
+		else
+		{
+			temp_card = getTacticalCard(trumpCard);
+			cout << "It is recommended that you choose " << temp_card->getCardFace() << temp_card->getCardSuit() << " because it is the best card you can play, after saving melds"<<endl;
+		}
+		playedCards.clear();
+		//call make move after the help
+		makeMove();
+		return 0;
 	case 4:
 		return 3;
 	default:
@@ -79,6 +93,8 @@ void Human::callMeld(Card* trumpCard)
 	//variable declaration
 	char isMelding;
 
+	char needHelp;
+
 	cout << "you are the winner. Do you want to call a meld?" << endl;
 	cout << "Y/N:";
 	cin >> isMelding;
@@ -87,6 +103,17 @@ void Human::callMeld(Card* trumpCard)
 	{
 		return;
 	}
+
+	cout << "Do you need help in making a meld?" << endl;
+	cout << "Y/N:";
+	cin >> needHelp;
+
+	if ('y' == needHelp)
+	{
+		cout << "Called for help" << endl;
+		decideMeld(trumpCard);
+	}
+
 
 	cout << "Choose the cards you want to meld from the following cards" << endl;
 	cout << "Advice: **Choose carefully you only get one chance**" << endl;
@@ -134,7 +161,8 @@ void Human::callMeld(Card* trumpCard)
 	playedCards.clear();
 
 	//add the score to the current round score
-	playerRoundScore += MELD_POINTS.at(meldIndex); //.at() is used because MELD_POINT is a constant
+	if(0 != meldIndex)
+		playerRoundScore += MELD_POINTS.at(meldIndex); //.at() is used because MELD_POINT is a constant
 
 	//process the move of card and such
 	if (0 != meldIndex)
