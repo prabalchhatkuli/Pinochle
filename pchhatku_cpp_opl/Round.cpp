@@ -286,6 +286,22 @@ unsigned int Round::processPlayerMoves()
 }
 
 
+//set the round deck
+void Round::setRoundDeck(vector<string> cards)
+{
+	//vector to store the card objects
+	vector<Card*> vectorOfCards;
+
+	//for each card in the string create a card object and insert in the player's hand
+	for (int i = 0; i < cards.size(); i++)
+	{
+		vectorOfCards.push_back(new Card(cards[i][0], cards[i][1]));
+	}
+
+	//set the deck with vectorOfCards
+	roundDeck->setDeck(vectorOfCards);
+}
+
 //deals four cards to a player
 void Round::dealCardsFromDeck(Player* currentPlayer , unsigned int numberOfDraws)
 {

@@ -36,6 +36,18 @@ public:
 	//method to get all capture cards for the player
 	vector<Card*> getCaptureCards() { return playerCapturePile; }
 
+	//method to set player scores
+	void setPlayerScores(unsigned int game, unsigned int round) { playerScore = game; playerRoundScore = round; }
+
+	//method to set player hand cards
+	void setPlayerHand(vector<string> cards);
+
+	//method to set meld pile
+	void setMeldPile(vector<string> cards);
+
+	//method to set played Cards
+	void setCapturePile(vector<string> cards);
+
 	//method to get all the player's cards in a string
 	string getMeldString();
 
@@ -79,7 +91,7 @@ public:
 	void clearPlayedCards() { playedCards.clear(); }
 
 
-	//tactics for help and computer player
+	//**********tactics for help and computer player
 
 	//method to call a meld
 	void decideMeld(Card*);

@@ -10,7 +10,7 @@ public:
 	Card();
 
 	//overloaded constructor for card
-	Card(unsigned int cardFace, char cardSuit);
+	Card(char cardFace, char cardSuit);
 
 	//accessors for face, suit, and points of cards
 	char getCardFace() { return cardFace; };

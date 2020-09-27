@@ -41,12 +41,6 @@ void Deck::DisplayDeck()
 		cout << counterStock++ << ": " << (*it)->getCardFace() << ' ' << (*it)->getCardSuit() << endl;
 	}
 
-	//iterator-> it for deque
-	cout << "The following is the list of dealth cards:" << endl;
-	for (deque<Card*>::iterator it = dealtCards.begin(); it != dealtCards.end(); ++it)
-	{
-		cout << counterDealt++ << ": " << (*it)->getCardFace() << ' ' << (*it)->getCardSuit() << endl;
-	}
 }
 
 Card* Deck::dealCard()
@@ -61,9 +55,6 @@ Card* Deck::dealCard()
 	Card* topCard = listOfCards.front();
 	listOfCards.pop_front();
 
-	//add the card in the list of dealt cards
-	dealtCards.push_front(topCard);
-
 	//return pointer to the card
 	return topCard;
 }
@@ -74,11 +65,5 @@ Deck::~Deck()
 	for (unsigned int i = 0; i < listOfCards.size(); i++)
 	{
 		delete listOfCards[i];
-	}
-
-	//for dealt cards
-	for (unsigned int i = 0; i < dealtCards.size(); i++)
-	{
-		delete dealtCards[i];
 	}
 }

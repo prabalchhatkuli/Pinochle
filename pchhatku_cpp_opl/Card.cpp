@@ -9,7 +9,7 @@ Card::Card()
 	cardPoints = 0;
 }
 
-Card::Card(unsigned int cardFace, char cardSuit)
+Card::Card(char cardFace, char cardSuit)
 {
 	//cout << "Card object has been created" << endl;
 	//initialize member variables

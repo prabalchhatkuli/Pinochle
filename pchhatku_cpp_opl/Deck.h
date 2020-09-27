@@ -18,6 +18,9 @@ public:
 	//randomly suffle the deck
 	void shuffleDeck();
 
+	//set the deck with a list of cards
+	void setDeck(vector<Card*> cards) { listOfCards.clear(); listOfCards = deque<Card*> (cards.begin(), cards.end());; }
+
 	//for testing only: Displays the current deck
 	void DisplayDeck();
 
@@ -43,6 +46,4 @@ private:
 	//cards in deck
 	deque<Card*> listOfCards;
 
-	//cards out of deck
-	deque<Card*> dealtCards;
 };

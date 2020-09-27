@@ -21,18 +21,6 @@ public:
 	//method to start the round
 	void startRound();
 
-	//determines who the first player for the round
-	void findFirstPlayerRound()
-	{
-
-	}
-
-	//determines who the first player for the turn
-	void findFirstPlayerTurn()
-	{
-
-	}
-
 	//process the moves made by players on a set of turn
 	unsigned int processPlayerMoves();
 
@@ -49,6 +37,12 @@ public:
 
 	//get nextTurn
 	unsigned int getNextPlayer() { return nextTurn; }
+
+	//set the trump Card for the round
+	void setTrumpCard(string card) { trumpCard = new Card(card[0], card[1]); }
+
+	//set the round deck
+	void setRoundDeck(vector<string> cards);
 
 	//class destructor
 	~Round()

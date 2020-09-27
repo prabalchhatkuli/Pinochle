@@ -844,6 +844,55 @@ void Player::utilityForMeldCombinations(vector<Card*> listOfCards, unsigned int 
 	utilityForMeldCombinations(listOfCards, sizeOfListOfCards, sizeOfCombinations, indexForDataVector, dataVector, indexForMainList + 1, scoreForThisList, trumpCard);
 }
 
+//method to set Player hand
+void Player::setPlayerHand(vector<string> cards) {
+	//vector to store the card objects
+	vector<Card*> vectorOfCards;
+
+	//for each card in the string create a card object and insert in the player's hand
+	for (int i = 0; i < cards.size(); i++)
+	{
+		vectorOfCards.push_back(new Card(cards[i][0], cards[i][1]));
+	}
+
+	//set the card to player hand
+	playerHand.clear();
+	playerHand = vectorOfCards;
+}
+
+//method to set meld pile
+void Player::setMeldPile(vector<string> cards)
+{
+	//vector to store the card objects
+	vector<Card*> vectorOfCards;
+
+	//for each card in the string create a card object and insert in the player's hand
+	for (int i = 0; i < cards.size(); i++)
+	{
+		vectorOfCards.push_back(new Card(cards[i][0], cards[i][1]));
+	}
+
+	//set the card to player hand
+	meldPile.clear();
+	meldPile = vectorOfCards;
+}
+
+//method to set played Cards
+void Player::setCapturePile(vector<string> cards)
+{
+	//vector to store the card objects
+	vector<Card*> vectorOfCards;
+
+	//for each card in the string create a card object and insert in the player's hand
+	for (int i = 0; i < cards.size(); i++)
+	{
+		vectorOfCards.push_back(new Card(cards[i][0], cards[i][1]));
+	}
+
+	//set the card to player hand
+	playerCapturePile.clear();
+	playerCapturePile = vectorOfCards;
+}
 
 //get a string representation of the player's string
 string Player::getMeldString()

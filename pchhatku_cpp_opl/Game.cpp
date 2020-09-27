@@ -73,6 +73,10 @@ void Game::startGame()
 		
 		//selecting option 2 loads game from a file
 		case 2 : cout << "ATTENTION:::load game option incomplete" << endl;
+			//create a new round for the game
+			currentRound = new Round(this);
+			loadGame();
+			return;
 			break;
 
 		//selecting option 3 quits the game
@@ -188,9 +192,187 @@ void Game::getGameInfo()
 	cout << "get game info option chosen" << endl;
 }
 
+//helper hunction for load game
+string trim(string line)
+{
+	string WhiteSpace = " \t\v\r\n";
+	//leftside trim
+	size_t start = line.find_first_not_of(WhiteSpace);
+	if (start == string::npos)
+	{
+		line = "";
+	}
+	else
+	{
+		line = line.substr(start);
+	}
+
+	//right side trim
+	size_t end = line.find_last_not_of(WhiteSpace);
+
+	if (end == string::npos)
+	{
+		return "";
+	}
+	else
+	{
+		return line.substr(0, end + 1);
+	}
+}
+
 void Game::loadGame()
 {
-	cout << "Game started loaded from file"<<endl;
+	cout << "Game load started:"<<endl;
+	//variable for the name of the save file
+	string filename;
+
+	//get the name of file to output
+	//make sure to get a .txt extension at the end
+	cout << "Please enter the name of the savefile with .txt extension: " << endl;;
+	do
+	{
+		if (cin.peek() == '\n')
+		{
+			cin.ignore();
+		}
+		//cin.ignore();
+		getline(cin, filename);
+	} while (!(filename.length() > 4 && ".txt" == (filename.substr(filename.length() - 4))));
+
+	//file write stream object //open the file to write
+	ifstream input(filename.c_str());
+
+	//variable for a buffer while reading each line
+	string line;
+
+	//variable to store the player number who is currently being evaluated
+	unsigned int playerNumber;
+
+	while (getline(input, line)) // Continue if not end of file
+	{
+		//trimming the line to see if it has any content other than whitespace
+		line = trim(line);
+		if (0 == line.length())
+			continue;
+		
+		//line has only valid content
+		istringstream iss(line);
+		vector<string> temp_vector{
+			istream_iterator<string>(iss), {}
+		};
+
+		//first job is to evaluate the round number
+		if (temp_vector[0] == "Round:")
+		{
+			//the last element is the round number
+			numRounds = stoi(temp_vector.back());
+			cout << numRounds << " is the round" << endl;
+			continue;
+		}
+
+		//once round number has been evaluated, skip the next line because it is of human
+		//start loop for player
+		if (temp_vector[0] == "Human:" || temp_vector[0] == "Computer:")
+		{
+			//evaluate the player
+			if (temp_vector[0] == "Human:") playerNumber = 0;
+			else playerNumber = 1;
+
+			continue;
+		}
+
+
+		if (temp_vector[0] == "Score:")
+		{
+			//1  is Game Score, 3 is Round Score
+			listOfPlayers[playerNumber]->setPlayerScores(stoi(temp_vector[1]), stoi(temp_vector[3]));
+			continue;
+		}
+
+		if (temp_vector[0] == "Hand:")
+		{
+			//break the vector and send it to the player to create a hand
+			cout << "Hand Cards" << endl;
+			if (temp_vector.size() > 1)
+			{
+				vector<string> slicedVectorOfCards(temp_vector.begin() + 1, temp_vector.begin() + temp_vector.size());
+
+				for (int i = 0; i < slicedVectorOfCards.size(); i++)
+					cout << slicedVectorOfCards[i] << endl;
+
+				listOfPlayers[playerNumber]->setPlayerHand(slicedVectorOfCards);
+			}
+			continue;
+		}
+
+		if (temp_vector[0] == "Capture")
+		{
+			//1 is "pile:"
+			//break the remaining and send it to the player to create capture pile
+			//break the vector and send it to the player to create a hand
+			cout << "capture Cards" << endl;
+			if (temp_vector.size() > 2)
+			{
+				vector<string> slicedVectorOfCards(temp_vector.begin() + 2, temp_vector.begin() + temp_vector.size());
+
+				for (int i = 0; i < slicedVectorOfCards.size(); i++)
+					cout << slicedVectorOfCards[i] << endl;
+
+				listOfPlayers[playerNumber]->setCapturePile(slicedVectorOfCards);
+			}
+			continue;
+		}
+
+		if (temp_vector[0] == "Melds:")
+		{
+			//break the remaining and send it to the player to create capture pile
+			cout << "Meld Cards" << endl;
+			if (temp_vector.size() > 1)
+			{
+				vector<string> slicedVectorOfCards(temp_vector.begin() + 1, temp_vector.begin() + temp_vector.size());
+
+				for (int i = 0; i < slicedVectorOfCards.size(); i++)
+					cout << slicedVectorOfCards[i] << endl;
+
+				listOfPlayers[playerNumber]->setCapturePile(slicedVectorOfCards);
+			}
+			continue;
+		}
+
+		if (temp_vector[0] == "Trump")
+		{
+			//the card is in index 2, beacuse index 1 is "card:"
+			cout << "Trump card" << temp_vector[2] << endl;
+			currentRound->setTrumpCard(temp_vector[2]);
+			continue;
+		}
+
+		if (temp_vector[0] == "Stock:")
+		{
+			//send the card to the round to create the deck
+			cout << "Stock Cards" << endl;
+			if (temp_vector.size() > 2)
+			{
+				vector<string> slicedVectorOfCards(temp_vector.begin() + 2, temp_vector.begin() + temp_vector.size());
+
+				for (int i = 0; i < slicedVectorOfCards.size(); i++)
+					cout << slicedVectorOfCards[i] << endl;
+
+				
+			}
+			continue;
+		}
+
+		if (temp_vector[0] == "Next")
+		{
+			//the player with next turn is in 2
+			//send it to round to set it to the nextTurn variable
+			cout << "Next Player is" <<temp_vector[2]<< endl;
+			continue;
+		}
+
+	}
+
 }
 
 void Game::saveGame()
@@ -292,7 +474,7 @@ void Game::saveGame()
 	}
 
 	//save next player
-	output <<endl<< "next player:" << endl;
+	output <<endl<< "next player:";
 
 	output << " " << currentRound->getNextPlayer() ? "Computer" : "Human";
 
