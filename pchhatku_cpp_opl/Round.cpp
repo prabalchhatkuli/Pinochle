@@ -18,7 +18,7 @@ Round::Round(Game* parentGame)
 
 }
 
-void Round::startRound()
+unsigned int Round::startRound(int loadedTurns)
 {
 	//variable declarations and in
 	//helper variable for dealing cards initially
@@ -29,29 +29,32 @@ void Round::startRound()
 
 	cout << "start round method started" << endl << endl;
 
-	//shuffle cards before dealing
-	roundDeck->shuffleDeck();
-
-	//deal cards to both users
-	while (dealCount < 3)
+	//if the number of loaded turns is not 12 then this is a loaded game, hence, no need to manage deck
+	if (12 == loadedTurns)
 	{
-		//deal 4 cards at a time to the two users
-		int playerCount = 0;
-		while (playerCount < 2)
+		//shuffle cards before dealing
+		roundDeck->shuffleDeck();
+
+		//deal cards to both users
+		while (dealCount < 3)
 		{
-			dealCardsFromDeck(parentGame->listOfPlayers[playerCount], 4);
-			playerCount++;
+			//deal 4 cards at a time to the two users
+			int playerCount = 0;
+			while (playerCount < 2)
+			{
+				dealCardsFromDeck(parentGame->listOfPlayers[playerCount], 4);
+				playerCount++;
+			}
+			//increment dealCounter
+			dealCount++;
 		}
-		//increment dealCounter
-		dealCount++;
+
+		//determining trump card for the round
+		trumpCard = roundDeck->dealCard();
 	}
 
 	//the total number of consecutive turns remaining for the stock cards to finish
-	remainingTurns = 12;
-	
-
-	//determining trump card for the round
-	trumpCard = roundDeck->dealCard();
+	remainingTurns = loadedTurns;
 
 	cout << "Cards have been dealt the following are your cards:" << endl << endl;
 
@@ -75,9 +78,6 @@ void Round::startRound()
 	//cout << endl << "Remaining stock cards:" << endl << endl;
 	//roundDeck->DisplayDeck();
 
-	//for debuggimns
-	nextTurn = 1;/////////////////////////////////////////////////////////////need to remove
-
 	//if the player chooses an option
 	unsigned int playerRoundMenuChoice = 999;
 
@@ -86,9 +86,6 @@ void Round::startRound()
 		unsigned int turnTaken = 2;
 		while (0 != turnTaken)
 		{
-			//for debugging
-			//nextTurn = 1;/////////////////////////////////////////////////////////need to remove
-
 
 			if (nextTurn == 0)
 			{
@@ -96,7 +93,7 @@ void Round::startRound()
 			}
 			else
 			{
-				cout << "Turn of COMPUTER:" << endl;
+				cout << "Turn of COMPUTER PLAYER:" << endl;
 			}
 
 			//variable to store the leadPlayerCard 
@@ -113,11 +110,9 @@ void Round::startRound()
 			{
 			case 0: break;
 			case 1: //save game
-				parentGame->saveGame();
-				break;
+				return 1;
 			case 3: //quit game
-				parentGame->quitGame();
-				break;
+				return 3;
 			}
 
 			if (nextTurn == 0)
@@ -229,9 +224,8 @@ void Round::startRound()
 	//reset player information for the end of round
 	parentGame->listOfPlayers[0]->resetRoundInfo();
 	parentGame->listOfPlayers[1]->resetRoundInfo();
-
+	return 0;
 }
-
 
 //process player moves at the end of a set of turns
 //returns the index of the winning player

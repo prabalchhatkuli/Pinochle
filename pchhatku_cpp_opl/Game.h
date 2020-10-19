@@ -67,7 +67,7 @@ private:
 	vector<unsigned int> playerScores;
 
 	//method to load a saved game from a file
-	void loadGame();
+	int loadGame();
 
 	//method to save to a file
 	void saveGame();

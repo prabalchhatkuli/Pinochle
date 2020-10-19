@@ -861,20 +861,127 @@ void Player::setPlayerHand(vector<string> cards) {
 }
 
 //method to set meld pile
-void Player::setMeldPile(vector<string> cards)
+void Player::setMeldPile(vector<vector<string>> meldCards, Card* trumpCard)
 {
-	//vector to store the card objects
-	vector<Card*> vectorOfCards;
+	//variable to act as a buffer for repeated meld cards (i.e. with *)
+	unordered_map<Card*, vector<unsigned int>> cardToMeldMapBuffer;
 
-	//for each card in the string create a card object and insert in the player's hand
-	for (int i = 0; i < cards.size(); i++)
+	for (int i = 0; i != meldCards.size(); i++)
 	{
-		vectorOfCards.push_back(new Card(cards[i][0], cards[i][1]));
+		//insert from meldCards to palyed cards by creating new cards
+		for (int j=0; j<meldCards[i].size(); j++)
+		{
+			playedCards.push_back(new Card(meldCards[i][j][0], meldCards[i][j][1]));
+		}
+
+		//evaluate the meld with these cards
+		unsigned int currentMeld = evaluateMeld(trumpCard);
+		
+		//reset the played cards because we don't need it from now
+		for (int j = 0; j < playedCards.size(); j++)
+		{
+			delete playedCards[j];
+		}
+		playedCards.clear();
+
+		//variable to store the cards in the current Meld currently being evaluated
+		vector<Card*> currentMeldCards;
+
+		//for each of the cards in the meldsCards, evaluate the meld and insert in the respective member maps
+		for (int j = 0; j < meldCards[i].size(); j++)
+		{
+			//variable to store the card
+			Card* chosenCard;
+
+			//if the card is being shared with another meld, it has an asterisk
+			if (3 == meldCards[i][j].length() && '*' == meldCards[i][j][2])
+			{
+				//find a card in the cardToMeldBuffer which does not have the "currentMeld" in it
+				vector<Card*> possibleCard;
+
+				for (unordered_map<Card*, vector<unsigned int>>::iterator it = cardToMeldMapBuffer.begin(); it != cardToMeldMapBuffer.end(); it++)
+				{
+					//if a similar card is found, check whether a similar meld already exists
+					if ((it->first)->getCardSuit() == meldCards[i][j][1] && (it->first)->getCardFace() == meldCards[i][j][0])
+					{
+						//searching for the meld in the meld vector
+						vector<unsigned int>::iterator foundMeld = std::find((it->second).begin(), (it->second).end(), currentMeld);
+
+						//if not found, add to the list of possible Cards. Ignore if found
+						if (foundMeld == (it->second).end())
+						{
+							possibleCard.push_back((it->first));
+						}
+					}
+				}
+
+				//for each of the possible cards, find out which one has only one meld
+				//if such card is found, choose this card
+				//otherwise add to the first card in the list
+
+				bool isCardFound = false;
+
+				for (int k = 0; k < possibleCard.size(); k++)
+				{
+					if ((cardToMeldMapBuffer[possibleCard[i]]).size() == 1)
+					{
+						chosenCard = possibleCard[i];
+						isCardFound = true;
+						break;
+					}
+				}
+
+				//if a card was found
+				if (isCardFound)
+				{
+					(cardToMeldMapBuffer[chosenCard]).push_back(currentMeld);
+				}
+				//if a card was not found and there was no similar card in the buffer map
+				else if(!isCardFound && 0 == possibleCard.size())
+				{
+					chosenCard = new Card(meldCards[i][j][0], meldCards[i][j][1]);
+					//insert into the buffer
+					cardToMeldMapBuffer.insert(pair<Card*, vector<unsigned int>>(chosenCard, { currentMeld }));
+					//insert into the meld list
+					meldPile.push_back(chosenCard);
+				}
+				else // possible card was found, and there were no cards with a only a single Meld 
+				{
+					(cardToMeldMapBuffer[possibleCard[0]]).push_back(currentMeld);
+				}
+			}
+			//else, it is not being shared with another meld
+			{
+				//no need to insert in the buffer, directly insert to the main map
+				chosenCard = new Card(meldCards[i][j][0], meldCards[i][j][1]);
+
+				cardToMeldMap.insert(pair<Card*, vector<unsigned int>>(chosenCard, { currentMeld }));
+
+				//insert to the meld pile
+				meldPile.push_back(chosenCard);
+			}
+
+			//add the chosen card to the vector of cards for the current meld
+			currentMeldCards.push_back(chosenCard);
+		}
+
+		//add to an entry for the meldToCard map
+		//if the current meld already exists in the meldToCardMap, push the meld vector
+		map<unsigned int, vector<vector<Card*>>>::iterator it = meldToCardMap.find(currentMeld);
+
+		if (it != meldToCardMap.end())
+		{
+			meldToCardMap[currentMeld].push_back(currentMeldCards);
+		}
+		//else, create a new entry
+		else
+		{
+			meldToCardMap.insert(pair<unsigned int, vector<vector<Card*>>>(currentMeld, { currentMeldCards }));
+		}
 	}
 
-	//set the card to player hand
-	meldPile.clear();
-	meldPile = vectorOfCards;
+	//finally merge the buffer into the main cardToMeldMap
+	cardToMeldMap.insert(cardToMeldMapBuffer.begin(), cardToMeldMapBuffer.end());
 }
 
 //method to set played Cards

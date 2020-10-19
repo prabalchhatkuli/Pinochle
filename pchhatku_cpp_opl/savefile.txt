@@ -17,7 +17,7 @@ Computer:
 	Hand: 9S QH QH XD QS QC QD XS
 	Capture Pile: JD KH
 	Melds: KD KS KH KC,
-trump card: 99
+Trump card: 99
 
-Stock Cards JD KC AC AH 9S QS 9D JS XH KS 9C JC JH XC 9H 9H JC
-next player: 0
+Stock: JD KC AC AH 9S QS 9D JS XH KS 9C JC JH XC 9H 9H JC
+Next player: Human

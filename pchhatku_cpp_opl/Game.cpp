@@ -26,6 +26,7 @@ void Game::startGame()
 
 	//declaring and initializing menu selection variables
 	unsigned int menuSelection = 0;
+	unsigned int remainingTurns = 12;
 
 	//variable to determine whether to start another round
 	bool addRound = true;
@@ -75,8 +76,7 @@ void Game::startGame()
 		case 2 : cout << "ATTENTION:::load game option incomplete" << endl;
 			//create a new round for the game
 			currentRound = new Round(this);
-			loadGame();
-			return;
+			remainingTurns = loadGame();
 			break;
 
 		//selecting option 3 quits the game
@@ -91,13 +91,30 @@ void Game::startGame()
 	do
 	{
 		//single round loop
-		currentRound = new Round(this);
+		if(2 != menuSelection)
+			currentRound = new Round(this);
+
+		//reset menu option
+		menuSelection = 0;
 
 		//start the round
-		currentRound->startRound();
+		unsigned int roundInfo = currentRound->startRound(remainingTurns);
+
+		if (1 == roundInfo)
+		{
+			saveGame();
+			return;
+		}
+		if (3 == roundInfo)
+		{
+			quitGame();
+			return;
+		}
 
 		//end of single round loop
-		
+		//reset the remaining turns
+		remainingTurns = 12;
+
 		//asking user for another round
 
 		cout << "Want to start another round?" << endl;
@@ -112,6 +129,7 @@ void Game::startGame()
 		{
 			numRounds++;  //increment number of rounds
 			cout << endl << "Starting round: " << numRounds << endl << endl;
+			remainingTurns = 12;
 		}
 		//deleting the round object
 		currentRound->displayDeck();
@@ -120,7 +138,6 @@ void Game::startGame()
 	} while (1 == menuSelection);
 
 }
-
 
 //validation function
 unsigned int Game::validateMenuInput(unsigned int start, unsigned int end)
@@ -171,7 +188,7 @@ void Game::quitGame()
 
 	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
 	{
-		listOfPlayers[i]->addToGameScore();
+		listOfPlayers[i]->addRoundToGameScore();
 	}
 
 	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
@@ -180,10 +197,15 @@ void Game::quitGame()
 			winnerIndex = i;
 	}
 
-	cout << "The winner is :" << winnerIndex ? "Computer" : "Human";
-	
+	cout << "The winner is :" << (winnerIndex ? "Computer" : "Human") <<endl;
+	cout << "The scores are ";
 
-	exit(0);
+	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
+	{
+		cout<<listOfPlayers[i]->getGameScore()<<"  ";
+	}
+	cout << "." << endl;
+	
 }
 
 //quit game
@@ -220,7 +242,7 @@ string trim(string line)
 	}
 }
 
-void Game::loadGame()
+int Game::loadGame()
 {
 	cout << "Game load started:"<<endl;
 	//variable for the name of the save file
@@ -247,6 +269,10 @@ void Game::loadGame()
 
 	//variable to store the player number who is currently being evaluated
 	unsigned int playerNumber;
+	unsigned int totalNumberOfPlayedCards=0;
+	vector<vector<vector<string>>> meldsForPlayers(2); //for two players
+	Card* trumpCard;
+
 
 	while (getline(input, line)) // Continue if not end of file
 	{
@@ -257,6 +283,8 @@ void Game::loadGame()
 		
 		//line has only valid content
 		istringstream iss(line);
+
+		//create a vector of strings from the line
 		vector<string> temp_vector{
 			istream_iterator<string>(iss), {}
 		};
@@ -284,6 +312,7 @@ void Game::loadGame()
 
 		if (temp_vector[0] == "Score:")
 		{
+			//for the score line vector
 			//1  is Game Score, 3 is Round Score
 			listOfPlayers[playerNumber]->setPlayerScores(stoi(temp_vector[1]), stoi(temp_vector[3]));
 			continue;
@@ -317,7 +346,7 @@ void Game::loadGame()
 
 				for (int i = 0; i < slicedVectorOfCards.size(); i++)
 					cout << slicedVectorOfCards[i] << endl;
-
+				totalNumberOfPlayedCards += slicedVectorOfCards.size();
 				listOfPlayers[playerNumber]->setCapturePile(slicedVectorOfCards);
 			}
 			continue;
@@ -331,10 +360,32 @@ void Game::loadGame()
 			{
 				vector<string> slicedVectorOfCards(temp_vector.begin() + 1, temp_vector.begin() + temp_vector.size());
 
-				for (int i = 0; i < slicedVectorOfCards.size(); i++)
-					cout << slicedVectorOfCards[i] << endl;
+				vector<vector<string>> vectorSingleMelds;
+				vector<string> singleMeld;
 
-				listOfPlayers[playerNumber]->setCapturePile(slicedVectorOfCards);
+				//find each meld by searching for comma
+				for (int i = 0; i < slicedVectorOfCards.size(); i++)	
+				{ 
+					//check for the comma to separate melds, or the end of list of cards
+					if ((3 == slicedVectorOfCards[i].length() && ',' == slicedVectorOfCards[i][2]) || (i == (slicedVectorOfCards.size()-1)))
+					{
+						if((3 == slicedVectorOfCards[i].length() && ',' == slicedVectorOfCards[i][2]))
+							slicedVectorOfCards[i].erase(slicedVectorOfCards[i].begin() + 2);
+						singleMeld.push_back(slicedVectorOfCards[i]);
+						vectorSingleMelds.push_back(singleMeld);
+					}
+					else
+					{
+						singleMeld.push_back(slicedVectorOfCards[i]);
+					}
+				}
+
+				meldsForPlayers[playerNumber] = vectorSingleMelds;
+				//listOfPlayers[playerNumber]->setMeldPile(vectorSingleMelds);
+			}
+			else
+			{
+				meldsForPlayers[playerNumber] = {};
 			}
 			continue;
 		}
@@ -358,7 +409,7 @@ void Game::loadGame()
 				for (int i = 0; i < slicedVectorOfCards.size(); i++)
 					cout << slicedVectorOfCards[i] << endl;
 
-				
+				currentRound->setRoundDeck(slicedVectorOfCards);
 			}
 			continue;
 		}
@@ -367,12 +418,24 @@ void Game::loadGame()
 		{
 			//the player with next turn is in 2
 			//send it to round to set it to the nextTurn variable
-			cout << "Next Player is" <<temp_vector[2]<< endl;
+			cout << "Next Player is " <<temp_vector[2]<< endl;
+
+			winnerLastRound = (temp_vector[2] == "Human") ? 0 : 1;
+			currentRound->setNextTurn(temp_vector[2]);
 			continue;
 		}
-
 	}
 
+	int counter = 1;
+	while (counter >= 0)
+	{
+		listOfPlayers[counter]->setMeldPile(meldsForPlayers[counter], currentRound->getTrumpCard());
+		cout << "Meld loaded for player:" << counter << endl;
+		counter--;
+	}
+
+	//return the remaining turns left to play for the game: derived from the capture pile number of the players
+	return (12 - totalNumberOfPlayedCards / 2);
 }
 
 void Game::saveGame()
@@ -458,12 +521,12 @@ void Game::saveGame()
 	}
 
 	//round information
-	output << "trump card:";
+	output << "Trump card:";
 
 	output << " "<<currentRound->getTrumpCard()->getCardFace() << currentRound->getTrumpCard()->getCardFace() << endl;
 
 	//Stock Cards:
-	output << endl << "Stock Cards";
+	output << endl << "Stock:";
 
 	//get all cards in stock pile
 	deque<Card*> stockCards = currentRound->getRoundDeck()->getStockCards();
@@ -474,7 +537,7 @@ void Game::saveGame()
 	}
 
 	//save next player
-	output <<endl<< "next player:";
+	output <<endl<< "Next player:";
 
 	output << " " << currentRound->getNextPlayer() ? "Computer" : "Human";
 

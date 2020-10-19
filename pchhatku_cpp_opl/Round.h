@@ -19,7 +19,7 @@ public:
 	Round(Game*);
 
 	//method to start the round
-	void startRound();
+	unsigned int startRound(int);
 
 	//process the moves made by players on a set of turn
 	unsigned int processPlayerMoves();
@@ -43,6 +43,13 @@ public:
 
 	//set the round deck
 	void setRoundDeck(vector<string> cards);
+
+	//set the next turn player
+	void setNextTurn(string player) 
+	{
+		if ("Computer" == player) nextTurn = 1;
+		else nextTurn = 0;
+	}
 
 	//class destructor
 	~Round()

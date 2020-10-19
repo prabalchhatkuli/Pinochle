@@ -22,7 +22,7 @@ public:
 	virtual unsigned int play(vector<Card*>, Card*) = 0;
 
 	//method to add roundscore to total score
-	void addToGameScore(){playerScore += playerRoundScore;}
+	void addRoundToGameScore(){playerScore += playerRoundScore;}
 
 	//method to get game score
 	unsigned int getGameScore() { return playerScore; }
@@ -43,7 +43,7 @@ public:
 	void setPlayerHand(vector<string> cards);
 
 	//method to set meld pile
-	void setMeldPile(vector<string> cards);
+	void setMeldPile(vector<vector<string>>, Card*);
 
 	//method to set played Cards
 	void setCapturePile(vector<string> cards);

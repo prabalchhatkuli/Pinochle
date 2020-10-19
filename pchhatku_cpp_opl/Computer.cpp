@@ -16,7 +16,8 @@ unsigned int Computer::play(vector<Card*> leadCard, Card* trumpCard)
 
 	//ask player to make a move
 	cout << "Please select an option below:" << endl;
-	cout << "1. Save the game" << endl;
+	if(leadCard.size()==0)
+		cout << "1. Save the game" << endl;
 	cout << "2. Make a move" << endl;
 	cout << "3. Quit the game" << endl;
 
