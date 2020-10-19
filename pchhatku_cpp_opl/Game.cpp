@@ -115,8 +115,22 @@ void Game::startGame()
 		//reset the remaining turns
 		remainingTurns = 12;
 
+		//End of round prompt
+		unsigned int winnerIndex = 0;
+		for (unsigned int i = 0; i < listOfPlayers.size(); i++)
+		{
+			if (listOfPlayers[i]->getRoundScore() > listOfPlayers[winnerIndex]->getRoundScore())
+				winnerIndex = i;
+		}
+		cout << "*************************************************" << endl;
+		cout << "The winner of the round is :" << (winnerIndex ? "Computer" : "Human") << endl;
+		cout << "The scores for the round are :  ";
+		for (unsigned int i = 0; i < listOfPlayers.size(); i++)
+		{
+			cout << listOfPlayers[i]->getRoundScore() << "  ";
+		}
+		cout << endl << "***************************************************" << endl;
 		//asking user for another round
-
 		cout << "Want to start another round?" << endl;
 		cout << "1) Yes, Let's start another round." << endl;
 		cout << "2) No, I am good for today." << endl;
@@ -127,9 +141,21 @@ void Game::startGame()
 		//if selected 1 continue the game and start another round
 		if (1 == menuSelection)
 		{
+
+			for (unsigned int i = 0; i < listOfPlayers.size(); i++)
+			{
+				listOfPlayers[i]->addRoundToGameScore();
+				listOfPlayers[i]->resetRoundInfo();
+			}
+			
 			numRounds++;  //increment number of rounds
 			cout << endl << "Starting round: " << numRounds << endl << endl;
 			remainingTurns = 12;
+		}
+		else
+		{
+			quitGame();
+			return;
 		}
 		//deleting the round object
 		currentRound->displayDeck();
@@ -242,6 +268,7 @@ string trim(string line)
 	}
 }
 
+//function to load saved game from a file
 int Game::loadGame()
 {
 	cout << "Game load started:"<<endl;
@@ -402,14 +429,18 @@ int Game::loadGame()
 		{
 			//send the card to the round to create the deck
 			cout << "Stock Cards" << endl;
-			if (temp_vector.size() > 2)
+			if (temp_vector.size() > 1)
 			{
-				vector<string> slicedVectorOfCards(temp_vector.begin() + 2, temp_vector.begin() + temp_vector.size());
+				vector<string> slicedVectorOfCards(temp_vector.begin() + 1, temp_vector.begin() + temp_vector.size());
 
 				for (int i = 0; i < slicedVectorOfCards.size(); i++)
 					cout << slicedVectorOfCards[i] << endl;
 
 				currentRound->setRoundDeck(slicedVectorOfCards);
+			}
+			else
+			{
+				currentRound->setRoundDeck(vector<string> {});
 			}
 			continue;
 		}
@@ -438,6 +469,7 @@ int Game::loadGame()
 	return (12 - totalNumberOfPlayedCards / 2);
 }
 
+//function to save the game
 void Game::saveGame()
 {
 	cout << "Starting to save game to a file" << endl;
@@ -462,7 +494,7 @@ void Game::saveGame()
 	ofstream output(filename.c_str());
 
 	//start writing to the file
-
+	// Note: The following is the order in which the game will get saved
 	//Round: 1
 
 	//Computer :
@@ -483,12 +515,12 @@ void Game::saveGame()
 	//Next Player : Human
 
 	output << "Round: " << numRounds << endl;
-	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
+	for (int i = (listOfPlayers.size()-1); i >= 0 ; --i)
 	{
 		if (1 == i)
 			output << endl << "Computer:" << endl;
 		else
-			output << endl << "Human" << endl;
+			output << endl << "Human:" << endl;
 
 		//scores
 		output << "\tScore: " << listOfPlayers[i]->getGameScore() <<" / "<< listOfPlayers[i]->getRoundScore() << endl;
@@ -515,7 +547,7 @@ void Game::saveGame()
 		//for the player's meld pile
 		output << endl;
 		output << "\tMelds:";
-		output << listOfPlayers[i]->getMeldString();
+		output << (listOfPlayers[i]->getMeldString()).substr(0, (listOfPlayers[i]->getMeldString()).length()-1);
 		output << endl;
 				
 	}
@@ -523,7 +555,7 @@ void Game::saveGame()
 	//round information
 	output << "Trump card:";
 
-	output << " "<<currentRound->getTrumpCard()->getCardFace() << currentRound->getTrumpCard()->getCardFace() << endl;
+	output << " "<<currentRound->getTrumpCard()->getCardFace() << currentRound->getTrumpCard()->getCardSuit() << endl;
 
 	//Stock Cards:
 	output << endl << "Stock:";
@@ -539,12 +571,15 @@ void Game::saveGame()
 	//save next player
 	output <<endl<< "Next player:";
 
-	output << " " << currentRound->getNextPlayer() ? "Computer" : "Human";
+	output << " " << (currentRound->getNextPlayer() ? "Computer" : "Human");
 
 	output.close();
 
 	cout << "Game saved";
 
-	exit(0);
+	cout << "Thanks for playing." << endl;
+	cout << "Come back anytime." << endl;
+
+	return;
 
 }

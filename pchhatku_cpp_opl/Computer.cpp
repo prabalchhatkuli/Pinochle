@@ -22,8 +22,11 @@ unsigned int Computer::play(vector<Card*> leadCard, Card* trumpCard)
 	cout << "3. Quit the game" << endl;
 
 	//receiving user input and validating using the parentGame method
-	cout << "input:";
-	cin >> turnChoice;
+	if (leadCard.size() == 0)
+		turnChoice = validateMenuInput(1, 3);
+	else
+		turnChoice = validateMenuInput(2, 3);
+
 
 	//switch statement for user input
 	switch (turnChoice)

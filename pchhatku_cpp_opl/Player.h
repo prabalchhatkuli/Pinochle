@@ -18,6 +18,9 @@ public:
 	//display player cards
 	void displayPlayerCards(bool);
 
+	//method for input validation
+	unsigned int validateMenuInput(unsigned int, unsigned int);
+
 	//method to make a move including menu choices
 	virtual unsigned int play(vector<Card*>, Card*) = 0;
 
@@ -139,6 +142,7 @@ protected:
 	//player's score for the round
 	unsigned int playerRoundScore;
 
+	//Note that: a player's playable card can be either in the capturePile or the meldPile and hand
 	//capture pile
 	vector<Card*> playerCapturePile;
 

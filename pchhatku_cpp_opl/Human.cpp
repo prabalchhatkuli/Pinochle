@@ -16,15 +16,17 @@ unsigned int Human::play(vector<Card*> leadCard, Card* trumpCard)
 
 	//ask player to make a move
 	cout << "Please select an option below:" << endl;
-	if (leadCard.size() == 0)
+	if (leadCard.size() == 0)	//this is done because only the lead player can save the game
 		cout << "1. Save the game" << endl;
 	cout << "2. Make a move" << endl;
 	cout << "3. Ask for help (Remember you can only ask for help once)" << endl;
 	cout << "4. Quit the game" << endl;
 
 	//receiving user input and validating using the parentGame method
-	cout << "input:";
-	cin >> turnChoice;
+	if (leadCard.size() == 0)
+		turnChoice = validateMenuInput(1, 4);
+	else
+		turnChoice = validateMenuInput(2, 4);
 
 	//switch statement for user input
 	switch (turnChoice)
@@ -35,17 +37,18 @@ unsigned int Human::play(vector<Card*> leadCard, Card* trumpCard)
 		makeMove();
 		return 0;
 	case 3:
-		//implement help function for human
+		//implementation of help function for human
 		Card* temp_card;
+
+		//if the player is chase
 		if (leadCard.size() != 0)
 		{
-			cout << "Here"<<endl<<"______________"<<endl;
 			temp_card = getCheapestCard(leadCard[0], trumpCard);
 		}
-		else
+		else //if the player is not chase: i.e. lead
 		{
 			temp_card = getTacticalCard(trumpCard);
-			cout << "It is recommended that you choose " << temp_card->getCardFace() << temp_card->getCardSuit() << " because it is the best card you can play, after saving melds"<<endl;
+			cout << "It is recommended that you choose " << temp_card->getCardFace() << temp_card->getCardSuit() << " because it is the best card you can play, after saving possible melds"<<endl;
 		}
 		playedCards.clear();
 		//call make move after the help
@@ -71,7 +74,7 @@ void Human::makeMove()
 	//input card for the move
 	cout << "select a card to run: 0 - " << (playerHand.size() + meldPile.size() - 1) << endl;
 
-	cin >> cardNumber;
+	cardNumber = validateMenuInput(0, (playerHand.size() + meldPile.size() - 1));
 
 	//validate cardNumber
 	//if chosen card has index less than the size of playerhand, the card is in the playerHand, otherwise in the meld pile
@@ -92,27 +95,35 @@ void Human::makeMove()
 void Human::callMeld(Card* trumpCard)
 {
 	//variable declaration
-	char isMelding;
-
-	char needHelp;
 
 	cout << "you are the winner. Do you want to call a meld?" << endl;
-	cout << "Y/N:";
-	cin >> isMelding;
+	cout << "1: Yes \t";
+	cout << "2: No" << endl;
 
-	if ('n' == isMelding)
+	if (2 == validateMenuInput(1, 2))
 	{
 		return;
 	}
+	cout << endl;
 
 	cout << "Do you need help in making a meld?" << endl;
-	cout << "Y/N:";
-	cin >> needHelp;
+	cout << "1: Yes \t";
+	cout << "2: No, thank you" << endl;
 
-	if ('y' == needHelp)
+	if (1 == validateMenuInput(1, 2))
 	{
-		cout << "Called for help" << endl;
+		cout << endl;
 		decideMeld(trumpCard);
+		cout << endl;
+
+		//ask if user still wants to continue
+		cout << "Do you wish to continue making melds?" << endl;
+		cout << "1: Yes \t";
+		cout << "2: No, thank you" << endl;
+
+		if (2 == validateMenuInput(1, 2))
+			return;
+		cout << endl;
 	}
 
 
@@ -130,29 +141,38 @@ void Human::callMeld(Card* trumpCard)
 	unsigned int cardNumber;
 
 	cout << endl << "How many cards would you like to choose?" << endl;
-	cin >> numberOfMeldCards;
+	numberOfMeldCards = validateMenuInput(1, (playerHand.size() + meldPile.size()));
 
-	cout << "Please enter the index of the " << numberOfMeldCards << " cards below:" << endl;
+	cout << "Please enter the index of the " << numberOfMeldCards << " cards, one by one, below:" << endl;
 	vector<unsigned int> listOfChosenIndex;
+
 	//loop the number of times the user wants to enter the cards
 	while (numberOfMeldCards)
 	{
-		cin >> cardNumber;
+		cardNumber = validateMenuInput(0, (playerHand.size() + meldPile.size() - 1));
 
 		//push chosen cards in the playedCards vector
-		if (cardNumber < playerHand.size())
+		if (find(listOfChosenIndex.begin(), listOfChosenIndex.end(), cardNumber) == listOfChosenIndex.end())
 		{
-			playedCards.push_back(playerHand[cardNumber]);
+			if (cardNumber < playerHand.size())
+			{
+				playedCards.push_back(playerHand[cardNumber]);
+			}
+			else
+			{
+				playedCards.push_back(meldPile[cardNumber - playerHand.size()]);
+			}
+			//insert the card index in a list
+			listOfChosenIndex.push_back(cardNumber);
+
+			//decrement the meld card counters
+			numberOfMeldCards--;
+
 		}
 		else
 		{
-			playedCards.push_back(meldPile[cardNumber - playerHand.size()]);
+			cerr << "The card has already been chosen, please choose another one." << endl;
 		}
-		//insert the card index in a list
-		listOfChosenIndex.push_back(cardNumber);
-
-		//decrement the meld card counters
-		numberOfMeldCards--;
 	}
 
 	//evaluate the meld
@@ -168,7 +188,6 @@ void Human::callMeld(Card* trumpCard)
 	//process the move of card and such
 	if (0 != meldIndex)
 	{   // meld can be made
-
 		//if the cards are in hand, remove the chosen cards from hand and insert into meld pile and card to meld map,
 		//if the cards is in the meld pile, add to the back of the meld list of the card in the card to meld map
 

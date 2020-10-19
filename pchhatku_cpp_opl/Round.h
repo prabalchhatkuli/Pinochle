@@ -35,11 +35,18 @@ public:
 	//get Round deck
 	Deck* getRoundDeck() { return roundDeck; }
 
+	//display all information for the round
+	void displayRoundInfo();
+
 	//get nextTurn
 	unsigned int getNextPlayer() { return nextTurn; }
 
 	//set the trump Card for the round
-	void setTrumpCard(string card) { trumpCard = new Card(card[0], card[1]); }
+	void setTrumpCard(string card) 
+	{
+		if(card.length() == 2 )trumpCard = new Card(card[0], card[1]);
+		else trumpCard = new Card('9', card[0]);
+	}
 
 	//set the round deck
 	void setRoundDeck(vector<string> cards);

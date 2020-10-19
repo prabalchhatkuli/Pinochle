@@ -32,15 +32,10 @@ void Deck::shuffleDeck()
 
 void Deck::DisplayDeck()
 {
-	int counterStock = 1;
-	int counterDealt = 1;
-	//iterator-> it for deque
-	cout << "The following is the list of cards in stock:" << endl;
 	for (deque<Card*>::iterator it = listOfCards.begin(); it != listOfCards.end(); ++it)
 	{
-		cout << counterStock++ << ": " << (*it)->getCardFace() << ' ' << (*it)->getCardSuit() << endl;
+		cout << (*it)->getCardFace() << (*it)->getCardSuit() << ",";
 	}
-
 }
 
 Card* Deck::dealCard()

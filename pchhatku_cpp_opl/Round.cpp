@@ -8,26 +8,41 @@ Round::Round()
 
 Round::Round(Game* parentGame)
 {
-	cout << "This is a round class" << endl;
 	//setting the parentGame
 	this->parentGame = parentGame;
 	
-	cout << "Round object created";
 	//initializing the deck for the current round
 	roundDeck = new Deck();
 
 }
 
+void Round::displayRoundInfo()
+{
+	cout<<"Round:: "<< parentGame->numRounds << endl;
+	cout << "HUMAN Cards::" << endl << endl;
+	parentGame->listOfPlayers[0]->displayPlayerCards(true);
+	cout << endl;
+
+	cout << endl << "COMPUTER Cards::" << endl << endl;
+	parentGame->listOfPlayers[1]->displayPlayerCards(true);
+	cout << endl;
+
+	cout << "**TRUMP CARD** ::" << endl;
+	cout << trumpCard->getCardFace() << trumpCard->getCardSuit() << endl;
+
+	cout << "Stock Cards:: "; displayDeck();
+	cout << endl << endl;;
+}
+
 unsigned int Round::startRound(int loadedTurns)
 {
-	//variable declarations and in
+	//variable declarations and initializations
 	//helper variable for dealing cards initially
 	unsigned int dealCount;
 
+	//**note: dealCount will only be used if new game is started
 	//initializing dealCount
 	dealCount = 0;
-
-	cout << "start round method started" << endl << endl;
 
 	//if the number of loaded turns is not 12 then this is a loaded game, hence, no need to manage deck
 	if (12 == loadedTurns)
@@ -63,21 +78,6 @@ unsigned int Round::startRound(int loadedTurns)
 		nextTurn = 0;
 	else nextTurn = 1;
 
-	//round loop start
-	cout << "HUMAN Cards::" << endl<<endl;
-	parentGame->listOfPlayers[0]->displayPlayerCards(false);
-	cout << endl << endl;
-
-	cout << endl << "COMPUTER Cards::" << endl<<endl;
-	parentGame->listOfPlayers[1]->displayPlayerCards(false);
-	cout << endl << endl;
-
-	cout << "**TRUMP CARD** ::" << endl;
-	cout << trumpCard->getCardFace() << trumpCard->getCardSuit() << endl << endl;
-
-	//cout << endl << "Remaining stock cards:" << endl << endl;
-	//roundDeck->DisplayDeck();
-
 	//if the player chooses an option
 	unsigned int playerRoundMenuChoice = 999;
 
@@ -86,6 +86,8 @@ unsigned int Round::startRound(int loadedTurns)
 		unsigned int turnTaken = 2;
 		while (0 != turnTaken)
 		{
+			//display all information of the round
+			displayRoundInfo();
 
 			if (nextTurn == 0)
 			{
@@ -95,6 +97,7 @@ unsigned int Round::startRound(int loadedTurns)
 			{
 				cout << "Turn of COMPUTER PLAYER:" << endl;
 			}
+			cout << endl;
 
 			//variable to store the leadPlayerCard 
 			vector<Card*> leadPlayerCard;
@@ -222,8 +225,8 @@ unsigned int Round::startRound(int loadedTurns)
 
 	//round loop end
 	//reset player information for the end of round
-	parentGame->listOfPlayers[0]->resetRoundInfo();
-	parentGame->listOfPlayers[1]->resetRoundInfo();
+	/*parentGame->listOfPlayers[0]->resetRoundInfo();
+	parentGame->listOfPlayers[1]->resetRoundInfo();*/
 	return 0;
 }
 

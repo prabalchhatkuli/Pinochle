@@ -9,19 +9,20 @@ Player::Player()
 //display all of the player's cards
 void Player::displayPlayerCards(bool showDefinitions)
 {
-	cout << "Current Hand::   | ";
+	cout << "Score:" << endl;
+	cout << getGameScore() << "/" << getRoundScore() << endl;;
 
+	cout << "Current cards::   | ";
 	//i is a counter for the cards, both hand and meld ones
 	int i = 0;
-	if(showDefinitions) cout << "Hand:" << endl << endl;
+	if(showDefinitions) cout << "Hand: ";
 	//displaying hand cards
 	for (vector<Card*>::iterator it = playerHand.begin(); it != playerHand.end(); ++it)
 	{
 		cout <<i++<<". "<<(*it)->getCardFace() << (*it)->getCardSuit() << " | ";
-		
 	}
 
-	if (showDefinitions) cout << endl << "Meld Pile" << endl << endl;
+	if (showDefinitions) cout << endl << "Single cards from Meld Pile: |";
 	//displaying meld cards
 	for (vector<Card*>::iterator it = meldPile.begin(); it != meldPile.end(); ++it)
 	{
@@ -49,7 +50,6 @@ void Player::displayPlayerCards(bool showDefinitions)
 	{
 		//display meld
 		std::cout << " " << MELDS.at(((int)it->first)) << ":" << "[";
-		cout << (it->second).size() << endl;
 		for (int i = 0; i < (it->second).size(); i++)
 		{
 			cout << "[";
@@ -57,13 +57,13 @@ void Player::displayPlayerCards(bool showDefinitions)
 			{
 				cout << (it->second)[i][j]->getCardFace() << (it->second)[i][j]->getCardSuit() << ", ";
 			}
-			cout << "]," << endl;
+			cout << "],";
 		}
 		cout << "]" << endl;
 	}
 
 	//display capture pile
-	cout << "Player capture pile" << endl;
+	cout << "Player capture pile: ";
 	for (int i = 0; i < playerCapturePile.size(); i++)
 	{
 		cout << playerCapturePile[i]->getCardFace() << playerCapturePile[i]->getCardSuit() << ", ";
@@ -71,7 +71,7 @@ void Player::displayPlayerCards(bool showDefinitions)
 	cout << endl;
 
 	//display the meld string
-	cout << getMeldString() << endl;
+	cout << "Meld String: "<<getMeldString() << endl;
 
 }
 
@@ -100,7 +100,7 @@ void Player::processPlayedCards() {
 	{
 		//find the card entry in cardToMeldMap
 		unordered_map<Card*, vector<unsigned int>>::iterator im = cardToMeldMap.find(playedCards[0]);
-
+	
 		//for each of the card's meld
 		for (int i = 0; i < (im->second).size(); i++)
 		{
@@ -171,8 +171,8 @@ void Player::processPlayedCards() {
 						}
 						//else do nothing
 					}
-					//erase iv from the vector ((meldToCardMap[tempMeld])[j])
-					((meldToCardMap[tempMeld])[j]).erase(iv);
+					//erase the vector containing iv from meldtoCardMap ((meldToCardMap[tempMeld])[j])
+					((meldToCardMap[tempMeld])).erase((meldToCardMap[tempMeld]).begin() + j);
 				}
 			}
 		}
@@ -394,7 +394,7 @@ void Player::decideMeld(Card* trumpCard)
 	if (0 == listOfPossibleMelds.size())
 	{
 		if ("H" == playerName)
-			cout << "No Melds are possible from your list of cards. Choose any number of cards to cancel." << endl;
+			cout << "No Melds are possible from your list of cards." << endl;
 		else
 			cout << "The computer decided to not make any melds" << endl;
 		return;
@@ -443,7 +443,7 @@ void Player::decideMeld(Card* trumpCard)
 			cout <<" "<<chosenMeld[i]->getCardFace()<< chosenMeld[i]->getCardSuit();
 		}
 
-		cout<<"at index: ";
+		cout<<" at index: ";
 		for (int i = 0; i < listOfChosenIndex.size(); i++)
 		{
 			cout << listOfChosenIndex[i] << ", ";
@@ -511,7 +511,7 @@ void Player::decideMeld(Card* trumpCard)
 				cardToMeldMap.insert(pair<Card*, vector<unsigned int>>(playerHand[*it - removeCount], { meldIndex }));
 
 				//remove from hand, decrease removeCount from index because after each erase, the indexes change
-				playerHand.erase(playerHand.begin() + *it - removeCount);
+				playerHand.erase(playerHand.begin() + (*it - removeCount));
 
 				//increment counter
 				removeCount++;
@@ -617,15 +617,6 @@ Card* Player::getTacticalCard(Card* trumpCard)
 		//cout << "The card remove below is " << listOfPlayableCards[i]->getCardFace()<< listOfPlayableCards[i]->getCardSuit() << endl;
 		tempListOfCards.erase(tempListOfCards.begin() + i);
 
-
-		//cout << endl << "each card removed" << endl;
-		////print vector for debugging
-		//for (vector<Card*>::iterator it = tempListOfCards.begin(); it != tempListOfCards.end(); ++it)
-		//{
-		//	cout << ". " << (*it)->getCardFace() << (*it)->getCardSuit() << " | ";
-
-		//}
-		//cout << endl;
 		unsigned int possibleScore = findPossibleScores(tempListOfCards, trumpCard);
 		//cout << possibleScore << endl;
 		//pushback the score of removing this card
@@ -669,17 +660,26 @@ Card* Player::getTacticalCard(Card* trumpCard)
 
 	for (int i = 0; i < cardsWithMaxPoints.size(); i++)
 	{
-		if (cardsWithMaxPoints[i]->getCardPoints() != maxPoints)
-			break;
+		/*if (cardsWithMaxPoints[i]->getCardPoints() != maxPoints)
+			break;*/
 
-		if (cardsWithMaxPoints[i]->getCardPoints() == maxPoints && cardsWithMaxPoints[i]->getCardSuit() == trumpCard->getCardSuit())
+		if (/*cardsWithMaxPoints[i]->getCardPoints() == maxPoints && */cardsWithMaxPoints[i]->getCardSuit() == trumpCard->getCardSuit())
 		{
+			cout << "retruned from 1:" << endl;
 			return cardsWithMaxPoints[i];
 		}
 	}
 
 	//remove the card from this index and insert into played cards
-	cout << "The played card is from 2: " << cardsWithMaxPoints[0]->getCardFace() << cardsWithMaxPoints[0]->getCardSuit() << endl;
+	/*for (int i = 0; i < cardsWithMaxPoints.size(); i++)
+	{
+		if (cardsWithMaxPoints[i]->getCardSuit() == trumpCard->getCardSuit())
+		{
+			cout << "retruned from 2:" << endl;
+			return cardsWithMaxPoints[i];
+		}
+	}*/
+	
 	return cardsWithMaxPoints[0];
 
 }
@@ -1007,7 +1007,7 @@ string Player::getMeldString()
 	//declaring and initializing string variable to combine the melds
 	string meldString = "";
 
-	//for each meld in the meld to card map
+	//for each meld in the meldPile to card map
 	for (map<unsigned int, vector<vector<Card*>>>::iterator im = meldToCardMap.begin(); im != meldToCardMap.end(); im++)
 	{
 		// get the vector of vector of cards
@@ -1077,4 +1077,42 @@ string Player::getMeldString()
 
 	}
 	return meldString;
+}
+
+//validation function
+unsigned int Player::validateMenuInput(unsigned int start, unsigned int end)
+{
+	//declaring and initializing menu selection variables
+	unsigned int menuSelection = 0;
+	string tempMenuSelection;
+
+	//error check flag for the string conversion
+	bool invalidInput;
+
+	do
+	{
+		invalidInput = false;
+		cout << "Input: ";
+		getline(cin, tempMenuSelection);
+
+		//validating string to integer cast
+		try
+		{
+			menuSelection = stoi(tempMenuSelection);
+		}
+		catch (...)
+		{
+			invalidInput = true;
+			cerr << "The input is invalid. Please enter a number between " << start << " and " << end << endl;
+			continue;
+		}
+
+		//validating input range
+		if (!(menuSelection >= start && menuSelection <= end))
+		{
+			cerr << "The input is invalid. Please enter a number between " << start << " and " << end << endl;
+		}
+	} while (!(menuSelection >= start && menuSelection <= end && invalidInput == false));
+
+	return menuSelection;
 }
