@@ -20,6 +20,7 @@ Round::Round()
 	trumpCard = NULL;
 	parentGame = NULL;
 	nextTurn = 0;
+	playedCards = {};
 }
 
 /* *********************************************************************
@@ -46,6 +47,7 @@ Round::Round(Game* parentGame)
 	nextTurn = 0;
 	remainingTurns = 0;
 	trumpCard = NULL;
+	playedCards = {};
 }
 
 /* *********************************************************************

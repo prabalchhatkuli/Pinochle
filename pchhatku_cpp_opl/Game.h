@@ -36,19 +36,7 @@ public:
 	unsigned int validateMenuInput(unsigned int start, unsigned int end);
 
 	//destructor
-	~Game() 
-	{
-		//free dynamically allocated memory
-		for (unsigned int i = 0; i < listOfPlayers.size(); i++)
-		{
-			delete listOfPlayers[i];
-		}
-		//delete the current round
-		delete currentRound;
-
-		//gratitude
-		cout << "Thank you for playing :) " << endl;
-	};
+	~Game();
 
 private:
 	//member variable declarations

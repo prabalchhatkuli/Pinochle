@@ -24,19 +24,17 @@ public:
 	//Displays the remaining cards in the current deck
 	void DisplayDeck();
 
-	//destructor
-	~Deck();
-
 	//Deal card method
 	Card* dealCard();
 
 	//get the remaing listOfCards i.e. stock cards
-	deque<Card*> getStockCards() { return listOfCards; }
+	const deque<Card*> getStockCards() { return listOfCards; }
 
 	//number of cards in deck
-	unsigned int numberOfCards() {
-		return listOfCards.size();
-	}
+	unsigned int numberOfCards() { return listOfCards.size(); }
+
+	//destructor
+	~Deck();
 
 private:
 	//constant arrays for the deck

@@ -15,7 +15,6 @@ Assistance Received: none
 ********************************************************************* */
 Deck::Deck()
 {
-
 	//initializing the list of cards
 	for (int i=0; i<2; i++)
 	{

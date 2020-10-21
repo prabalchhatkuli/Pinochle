@@ -28,16 +28,19 @@ public:
 	void addRoundToGameScore(){playerScore += playerRoundScore;}
 
 	//method to get game score
-	unsigned int getGameScore() { return playerScore; }
+	const unsigned int getGameScore() { return playerScore; }
 
 	//method to get round Score
-	unsigned int getRoundScore() { return playerRoundScore; }
+	const unsigned int getRoundScore() { return playerRoundScore; }
 
 	//method to get all cards in the hand
-	vector<Card*> getHandCards() { return playerHand; }
+	const vector<Card*> getHandCards() { return playerHand; }
 
 	//method to get all capture cards for the player
-	vector<Card*> getCaptureCards() { return playerCapturePile; }
+	const vector<Card*> getCaptureCards() { return playerCapturePile; }
+
+	//method to get playerName
+	const string getPlayerName() { return playerName; }
 
 	//method to set player scores
 	void setPlayerScores(unsigned int game, unsigned int round) { playerScore = game; playerRoundScore = round; }
@@ -69,26 +72,20 @@ public:
 	//method to add to the round score
 	void addToRoundScore(int score) { playerRoundScore += score; }
 
-	//method to make a move
-	//virtual void makeMove() = 0;
-
 	//method to reset all information stored for the user for a round
 	void resetRoundInfo();
-
-	//method to reset capture pile
 
 	//method to process played cards
 	void processPlayedCards();
 
 	//get the cards chosen by user during the move
-	vector<Card*> getPlayedCards() { return playedCards; }
-
+	const vector<Card*> getPlayedCards() { return playedCards; }
 
 	//clear the played cards
 	void clearPlayedCards() { playedCards.clear(); }
 
 
-	//**********tactics for help and computer player
+	/**********tactics for help and computer player***********/
 
 	//method to call a meld
 	void decideMeld(Card*);
@@ -146,21 +143,16 @@ protected:
 	//meld pile: cards used for meld
 	vector<Card*> meldPile;
 
-	//melds
 	//variable to store the melds and corresponding cards for those melds
+	map<unsigned int, vector<vector<Card*>>> meldToCardMap;
 
-	map<unsigned int, vector<vector<Card*>>> meldToCardMap;	//what cards does a meld have
-	unordered_map<Card*, vector<unsigned int>> cardToMeldMap;  //which melds does a card belong to
-
+	//variable to store the cards and its corresponding list of melds
+	unordered_map<Card*, vector<unsigned int>> cardToMeldMap;
 
 	//chosen cards: when a player chooses one/many card at a move/meld
 	vector<Card*> playedCards;
 
 	//vector to store the list of possible melds for a list of cards
 	vector<pair<vector<Card*>, unsigned int>> listOfPossibleMelds;
-
-	//virtual methods necessary for human and computer
-	//method to make a move
-
 
 };

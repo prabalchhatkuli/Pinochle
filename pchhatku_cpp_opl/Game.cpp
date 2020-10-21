@@ -82,6 +82,7 @@ void Game::startGame()
 		//load game file method is called
 		//all of the game state is set
 		case 1 :
+			//starting round with coin toss, this was not turned into a function because it is only used a single time in the game class
 			{
 				cout << endl << "Starting round: "<< numRounds << endl << endl;
 				//coin toss for the first round
@@ -159,7 +160,7 @@ void Game::startGame()
 				winnerIndex = i;
 		}
 		cout << "*************************************************" << endl;
-		cout << "The winner of the round is :" << (winnerIndex ? "Computer" : "Human") << endl;
+		cout << "The winner of the round is :" << listOfPlayers[winnerIndex]->getPlayerName() << endl;
 		cout << "The scores for the round are :  ";
 		for (unsigned int i = 0; i < listOfPlayers.size(); i++)
 		{
@@ -302,7 +303,7 @@ void Game::quitGame()
 	}
 
 	//display winner
-	cout << "The winner is :" << (winnerIndex ? "Computer" : "Human") <<endl;
+	cout << "The winner is :" << listOfPlayers[winnerIndex]->getPlayerName() <<endl;
 	cout << "The scores are ";
 
 	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
@@ -403,7 +404,6 @@ int Game::loadGame()
 	//variable to store the trump card
 	Card* trumpCard;
 
-
 	//get the name of file to output
 	//make sure to get a .txt extension at the end
 	cout << "Please enter the name of the savefile with .txt extension: " << endl;;
@@ -440,7 +440,7 @@ int Game::loadGame()
 		{
 			//the last element is the round number
 			numRounds = stoi(temp_vector.back());
-			cout << numRounds << " is the round" << endl;
+
 			continue;
 		}
 
@@ -454,7 +454,6 @@ int Game::loadGame()
 
 			continue;
 		}
-
 
 		if (temp_vector[0] == "Score:")
 		{
@@ -472,9 +471,6 @@ int Game::loadGame()
 			{
 				vector<string> slicedVectorOfCards(temp_vector.begin() + 1, temp_vector.begin() + temp_vector.size());
 
-				for (int i = 0; i < slicedVectorOfCards.size(); i++)
-					cout << slicedVectorOfCards[i] << endl;
-
 				listOfPlayers[playerNumber]->setPlayerHand(slicedVectorOfCards);
 			}
 			continue;
@@ -490,8 +486,6 @@ int Game::loadGame()
 			{
 				vector<string> slicedVectorOfCards(temp_vector.begin() + 2, temp_vector.begin() + temp_vector.size());
 
-				for (int i = 0; i < slicedVectorOfCards.size(); i++)
-					cout << slicedVectorOfCards[i] << endl;
 				totalNumberOfPlayedCards += slicedVectorOfCards.size();
 				listOfPlayers[playerNumber]->setCapturePile(slicedVectorOfCards);
 			}
@@ -538,7 +532,6 @@ int Game::loadGame()
 		if (temp_vector[0] == "Trump")
 		{
 			//the card is in index 2, beacuse index 1 is "card:"
-			cout << "Trump card" << temp_vector[2] << endl;
 			currentRound->setTrumpCard(temp_vector[2]);
 			continue;
 		}
@@ -550,9 +543,6 @@ int Game::loadGame()
 			if (temp_vector.size() > 1)
 			{
 				vector<string> slicedVectorOfCards(temp_vector.begin() + 1, temp_vector.begin() + temp_vector.size());
-
-				for (int i = 0; i < slicedVectorOfCards.size(); i++)
-					cout << slicedVectorOfCards[i] << endl;
 
 				currentRound->setRoundDeck(slicedVectorOfCards);
 			}
@@ -568,8 +558,6 @@ int Game::loadGame()
 		{
 			//the player with next turn is in 2
 			//send it to round to set it to the nextTurn variable
-			cout << "Next Player is " <<temp_vector[2]<< endl;
-
 			winnerLastRound = (temp_vector[2] == "Human") ? 0 : 1;
 			currentRound->setNextTurn(temp_vector[2]);
 			continue;
@@ -705,7 +693,7 @@ void Game::saveGame()
 	//save next player
 	output <<endl<< "Next player:";
 
-	output << " " << (currentRound->getNextPlayer() ? "Computer" : "Human");
+	output << " " << listOfPlayers[currentRound->getNextPlayer()]->getPlayerName();
 
 	//close file
 	output.close();
@@ -718,3 +706,19 @@ void Game::saveGame()
 	return;
 
 }
+
+
+//destructor
+Game::~Game()
+{
+	//free dynamically allocated memory
+	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
+	{
+		delete listOfPlayers[i];
+	}
+	//delete the current round
+	delete currentRound;
+
+	//gratitude
+	cout << "Thank you for playing :) " << endl;
+};

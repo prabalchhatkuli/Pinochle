@@ -39,7 +39,7 @@ public:
 	void displayRoundInfo();
 
 	//get nextTurn
-	unsigned int getNextPlayer() { return nextTurn; }
+	const unsigned int getNextPlayer() { return nextTurn; }
 
 	//set the trump Card for the round
 	void setTrumpCard(string card) 
@@ -51,7 +51,7 @@ public:
 	//set the round deck
 	void setRoundDeck(vector<string> cards);
 
-	//set the next turn player
+	//set the next turn player : called when game is loaded
 	void setNextTurn(string player) 
 	{
 		if ("Computer" == player) nextTurn = 1;

@@ -14,7 +14,7 @@ Assistance Received: none
 ********************************************************************* */
 Human::Human()
 {
-	playerName = "H";
+	playerName = "Human";
 }
 
 //make a move for the player
@@ -108,7 +108,6 @@ void Human::makeMove()
 	unsigned int cardNumber;
 
 	displayPlayerCards(false);
-	cout << "your score till now: " << playerRoundScore << "/" << playerScore << endl;
 	cout << "Make a move(option):" << endl << endl;
 
 	//input card for the move

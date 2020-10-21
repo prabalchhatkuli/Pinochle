@@ -14,7 +14,7 @@ Assistance Received: none
 ********************************************************************* */
 Computer::Computer()
 {
-	playerName = "C";
+	playerName = "Computer";
 }
 
 

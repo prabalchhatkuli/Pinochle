@@ -13,8 +13,8 @@ public:
 	Card(char cardFace, char cardSuit);
 
 	//accessors for face, suit, and points of cards
-	char getCardFace() { return cardFace; };
-	char getCardSuit() { return cardSuit; };
+	const char getCardFace() { return cardFace; };
+	const char getCardSuit() { return cardSuit; };
 	unsigned int getCardPoints() { return cardPoints; }
 
 private:
