@@ -1,5 +1,19 @@
 #include "Game.h"
 
+/* *********************************************************************
+Function Name: Game() constructor
+Purpose: To initialize the instance of a game class
+Parameters:
+		None
+Return Value: None
+Local Variables:
+			None
+Algorithm:
+			1) Adds player object in the listOfPlayers
+			2) initializes playerscores, numRounds(number of rounds), and currentRound which is the round object for the game
+
+Assistance Received: none
+********************************************************************* */
 //class constructor
 Game::Game()
 {
@@ -16,10 +30,35 @@ Game::Game()
 	//number of rounds
 	numRounds = 1;
 
-	cout << "The Game class is initialized"<<endl;
+	//winner of last round,i.e. the player who will start the game
+	//assumed to be the first player
+	winnerLastRound = 0;
+
+	//currentRound
+	currentRound = NULL;
 }
 
-//start game
+/* *********************************************************************
+Function Name: startGame()
+Purpose: To start the game
+Parameters:
+		None
+Return Value: None
+Local Variables:
+			remainingTurns, an intger. it holds number of turns remaining for the game(runs from +12 to -12)
+			menuSelection, an integer. it stores the user's selction of menu
+			roundInfo, an integer. it stores an integer returned by the round
+			winnerIndex,an integer. it stores the index of the winner
+Algorithm:
+			1) Select the player's choice to start the game
+			2) if a new game is started , a coin toss is made
+			3) if load game is chosen, loadGame() function is chosen
+			4) otherwise, the game calls quitGame() function
+			5)Then, the game loop is started, where a new round object is created
+			6)based on the value of roundInfo, then it decided whether to quit game, save game, or start a new round
+
+Assistance Received: none
+********************************************************************* */
 void Game::startGame()
 {
 	cout << "///** PINOCHLE **\\\\\\" << endl;
@@ -27,9 +66,6 @@ void Game::startGame()
 	//declaring and initializing menu selection variables
 	unsigned int menuSelection = 0;
 	unsigned int remainingTurns = 12;
-
-	//variable to determine whether to start another round
-	bool addRound = true;
 
 	//Main Menu display
 	cout << "Main Menu:" << endl;
@@ -73,7 +109,7 @@ void Game::startGame()
 			break;
 		
 		//selecting option 2 loads game from a file
-		case 2 : cout << "ATTENTION:::load game option incomplete" << endl;
+		case 2 :
 			//create a new round for the game
 			currentRound = new Round(this);
 			remainingTurns = loadGame();
@@ -148,24 +184,47 @@ void Game::startGame()
 				listOfPlayers[i]->resetRoundInfo();
 			}
 			
-			numRounds++;  //increment number of rounds
+			//increment number of rounds
+			numRounds++; 
 			cout << endl << "Starting round: " << numRounds << endl << endl;
+
+			//reset remaining turns for a round
 			remainingTurns = 12;
+
+			//deleting the round object
+			currentRound->displayDeck();
+			delete currentRound;
 		}
 		else
 		{
 			quitGame();
 			return;
 		}
-		//deleting the round object
-		currentRound->displayDeck();
-		delete currentRound;
 
 	} while (1 == menuSelection);
 
 }
 
-//validation function
+
+/* *********************************************************************
+Function Name: validateMenuInput
+Purpose: To validate input based on a given range of integers
+Parameters:
+		start, an integer. It holds the start value of the range of input.
+		stop, an integer. It holds the stop value of the range of input.
+Return Value:
+		the validated input made by the user
+Local Variables:
+			menuSelection, a integer value to store the final value of user input.
+			tempMenuSelection, a string to store the line from the cin stream.
+			invalidInput, a flag to see if the input is valid.
+
+Algorithm:
+			1) gets the line from user's input and stores in tempMenuSelection
+			2)	tries to convert it into an integer and repeatedly checks if it is within the given range
+
+Assistance Received: none
+********************************************************************* */
 unsigned int Game::validateMenuInput(unsigned int start, unsigned int end)
 {
 	//declaring and initializing menu selection variables
@@ -203,26 +262,46 @@ unsigned int Game::validateMenuInput(unsigned int start, unsigned int end)
 	return menuSelection;
 }
 
-//quit game
+/* *********************************************************************
+Function Name: quitGame
+Purpose: To display information after quitting the game
+Parameters:
+		none
+Return Value:
+		none
+Local Variables:
+			totalScoresForPlayers, a vector of integers. it holds the scores for each player
+			winnerIndex, an integer. it holds the index of the winner
+
+Algorithm:
+			1) finds the score for each player
+			2) finds the maximum in the list of scores
+			3) displays the final game scores for all players
+
+Assistance Received: none
+********************************************************************* */
 void Game::quitGame()
 {
-	cout << "quit game option chosen" << endl;
-
+	//variable to store totalScores
 	vector<unsigned int> totalScoresForPlayers;
 
+	//variable to store the index of the winner
 	unsigned int winnerIndex = 0;
 
+	//find the total game score for each player
 	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
 	{
 		listOfPlayers[i]->addRoundToGameScore();
 	}
 
+	//find maximum total scores
 	for (unsigned int i = 0; i < listOfPlayers.size(); i++)
 	{
 		if (listOfPlayers[i]->getGameScore() > listOfPlayers[winnerIndex]->getGameScore())
 			winnerIndex = i;
 	}
 
+	//display winner
 	cout << "The winner is :" << (winnerIndex ? "Computer" : "Human") <<endl;
 	cout << "The scores are ";
 
@@ -231,16 +310,27 @@ void Game::quitGame()
 		cout<<listOfPlayers[i]->getGameScore()<<"  ";
 	}
 	cout << "." << endl;
-	
 }
 
-//quit game
-void Game::getGameInfo()
-{
-	cout << "get game info option chosen" << endl;
-}
+/* *********************************************************************
+Function Name: trim
+Purpose: trims a string of succeeding and trailing whitespace
+Parameters:
+		line, a string with whitespaces succeeding and preceding characters
+Return Value:
+		a string with trimmed whitespaces
+Local Variables:
+			WhiteSpace, a string. it holds the whitespace characters to exclude
+			start, integer to store the starting index of the normal characters
+			stop, integer to store the ending index of the normal characters
 
-//helper hunction for load game
+Algorithm:
+			1) find the start position in the string that is not a whitespace
+			2) find the end position in the string that is not a whitespace
+			3) splice the string and return
+
+Assistance Received: none
+********************************************************************* */
 string trim(string line)
 {
 	string WhiteSpace = " \t\v\r\n";
@@ -268,12 +358,51 @@ string trim(string line)
 	}
 }
 
-//function to load saved game from a file
+/* *********************************************************************
+Function Name: loadGame
+Purpose: function to load saved game from a file
+Parameters:
+		none
+Return Value:
+		integer with the remaining turns a value between +12 and -12
+Local Variables:
+			filename, string to store the input file
+			input, input stream object for the file
+			line, string to store each read line
+			playerNumber, integer to denote the number of player whose information is being read
+			totalNumberOfPlayedCards, integer to store the number of cards played in the game
+			meldsForPlayers, vector to store the list of melds of cards(string) for each player 
+			trumpCard, Card object to store the trumpCard for the loaded game
+			slicedVectorOfCards, vector to store the list of strings(cards) in the given line
+
+Algorithm:
+			1) read the filename and read each line, one at a time
+			2) based on the first string of the line, determine the route
+			3) for each of the route, if it is based on cards, slice the cards and send it to the player to handle
+			4) for meld cards, read the cards and store it in the meldsForPlayers for each player until the trumpCard is determined
+			5)	for played cards, count the played cards, and send the played cards to each player
+			6) return the remainingTurns by returning (12 - totalNumberOfPlayedCards / 2)
+
+Assistance Received: none
+********************************************************************* */
 int Game::loadGame()
 {
-	cout << "Game load started:"<<endl;
 	//variable for the name of the save file
 	string filename;
+
+	//variable for a buffer while reading each line
+	string line;
+
+	//variable to store the player number who is currently being evaluated
+	unsigned int playerNumber;
+	unsigned int totalNumberOfPlayedCards = 0;
+
+	//for two players in our case
+	vector<vector<vector<string>>> meldsForPlayers(2);
+
+	//variable to store the trump card
+	Card* trumpCard;
+
 
 	//get the name of file to output
 	//make sure to get a .txt extension at the end
@@ -291,17 +420,7 @@ int Game::loadGame()
 	//file write stream object //open the file to write
 	ifstream input(filename.c_str());
 
-	//variable for a buffer while reading each line
-	string line;
-
-	//variable to store the player number who is currently being evaluated
-	unsigned int playerNumber;
-	unsigned int totalNumberOfPlayedCards=0;
-	vector<vector<vector<string>>> meldsForPlayers(2); //for two players
-	Card* trumpCard;
-
-
-	while (getline(input, line)) // Continue if not end of file
+	while (getline(input, line))
 	{
 		//trimming the line to see if it has any content other than whitespace
 		line = trim(line);
@@ -408,7 +527,6 @@ int Game::loadGame()
 				}
 
 				meldsForPlayers[playerNumber] = vectorSingleMelds;
-				//listOfPlayers[playerNumber]->setMeldPile(vectorSingleMelds);
 			}
 			else
 			{
@@ -440,6 +558,7 @@ int Game::loadGame()
 			}
 			else
 			{
+				// if the deck is empty, send an empty vector
 				currentRound->setRoundDeck(vector<string> {});
 			}
 			continue;
@@ -457,6 +576,7 @@ int Game::loadGame()
 		}
 	}
 
+	//once the trumpCard has been determined send the list of melds to respective players to verify
 	int counter = 1;
 	while (counter >= 0)
 	{
@@ -469,11 +589,27 @@ int Game::loadGame()
 	return (12 - totalNumberOfPlayedCards / 2);
 }
 
-//function to save the game
+/* *********************************************************************
+Function Name: saveGame
+Purpose: function to save the game to the file
+Parameters:
+		none
+Return Value:
+		none
+Local Variables:
+			filename, string to store the input file
+			output, output stream object
+			tempCards, store the vector of cards(played, hand) to output to the file
+
+Algorithm:
+			1) input the filename for the file to output
+			1) for each player in the game output the played cards, meld cards, hand cards, and other info
+			2) output the information about the game by using getter functions
+
+Assistance Received: none
+********************************************************************* */
 void Game::saveGame()
-{
-	cout << "Starting to save game to a file" << endl;
-	
+{	
 	//variable for the name of the save file
 	string filename;
 
@@ -493,27 +629,26 @@ void Game::saveGame()
 	//file write stream object //open the file to write
 	ofstream output(filename.c_str());
 
-	//start writing to the file
-	// Note: The following is the order in which the game will get saved
-	//Round: 1
+	/*start writing to the file
+	 Note: The following is the order in which the game will get saved
+	Round: 1
 
-	//Computer :
-	//Score : 0 / 0
-	//Hand : QH KH QC KD JH XH QS 9H XC JS QD KC
-	//Capture Pile :
-	//Melds:
+	Computer :
+	Score : 0 / 0
+	Hand : QH KH QC KD JH XH QS 9H XC JS QD KC
+	Capture Pile :
+	Melds:
 
-	//Human:
-	//Score: 0 / 22
-	//Hand : AH AC AS AD XH AC JH QC KD 9S 9D
-	//Capture Pile : XC JC
-	//Melds : 9H
+	Human:
+	Score: 0 / 22
+	Hand : AH AC AS AD XH AC JH QC KD 9S 9D
+	Capture Pile : XC JC
+	Melds : 9H
 
-	//Trump Card : AH
-	//Stock : KS QH 9C 9S XD KC JD JS KS QD XS 9C JC KH AD 9D AS XS XD JD QS
+	Trump Card : AH
+	Stock : KS QH 9C 9S XD KC JD JS KS QD XS 9C JC KH AD 9D AS XS XD JD QS
 
-	//Next Player : Human
-
+	Next Player : Human*/
 	output << "Round: " << numRounds << endl;
 	for (int i = (listOfPlayers.size()-1); i >= 0 ; --i)
 	{
@@ -549,7 +684,6 @@ void Game::saveGame()
 		output << "\tMelds:";
 		output << (listOfPlayers[i]->getMeldString()).substr(0, (listOfPlayers[i]->getMeldString()).length()-1);
 		output << endl;
-				
 	}
 
 	//round information
@@ -573,10 +707,11 @@ void Game::saveGame()
 
 	output << " " << (currentRound->getNextPlayer() ? "Computer" : "Human");
 
+	//close file
 	output.close();
 
-	cout << "Game saved";
-
+	//gratitude
+	cout << "Game saved"<<endl;
 	cout << "Thanks for playing." << endl;
 	cout << "Come back anytime." << endl;
 

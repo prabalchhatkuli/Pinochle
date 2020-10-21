@@ -1,9 +1,9 @@
 #pragma once
 #include<iostream>
 #include<vector>
-#include <algorithm>    // std::shuffle
-#include <random>       // std::default_random_engine
-#include <chrono>       // std::chrono::system_clock
+#include <algorithm>
+#include <random>
+#include <chrono> 
 #include <deque>
 #include "Card.h"
 
@@ -21,7 +21,7 @@ public:
 	//set the deck with a list of cards
 	void setDeck(vector<Card*> cards) { listOfCards.clear(); listOfCards = deque<Card*> (cards.begin(), cards.end());; }
 
-	//for testing only: Displays the current deck
+	//Displays the remaining cards in the current deck
 	void DisplayDeck();
 
 	//destructor

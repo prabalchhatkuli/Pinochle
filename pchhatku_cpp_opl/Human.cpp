@@ -1,14 +1,37 @@
 #include "Human.h"
 
-//class constructor
+/* *********************************************************************
+Function Name: Human
+Purpose: class constructor
+Parameters:
+			none
+Return Value: none
+Local Variables:
+			none
+Algorithm:
+			1) set the player name
+Assistance Received: none
+********************************************************************* */
 Human::Human()
 {
-	cout << "Human player object created" << endl;;
 	playerName = "H";
 }
 
-//play function for human
 //make a move for the player
+/* *********************************************************************
+Function Name: play
+Purpose: play function for human
+Parameters:
+			leadCard, vector possibly containing the card chosen by leadcard
+			trumpCard, trumpCard for the round
+Return Value: an integer that contains the choice made by the player during the play function 
+Local Variables:
+			turnChoice, an integer array used to store the choice made by the user
+Algorithm:
+			1) take user input for menu choices
+			2) route the user based on the choice 
+Assistance Received: none
+********************************************************************* */
 unsigned int Human::play(vector<Card*> leadCard, Card* trumpCard)
 {
 	//variablt to store what the user did in their turn
@@ -16,7 +39,8 @@ unsigned int Human::play(vector<Card*> leadCard, Card* trumpCard)
 
 	//ask player to make a move
 	cout << "Please select an option below:" << endl;
-	if (leadCard.size() == 0)	//this is done because only the lead player can save the game
+
+	if (leadCard.size() == 0)	
 		cout << "1. Save the game" << endl;
 	cout << "2. Make a move" << endl;
 	cout << "3. Ask for help (Remember you can only ask for help once)" << endl;
@@ -43,9 +67,11 @@ unsigned int Human::play(vector<Card*> leadCard, Card* trumpCard)
 		//if the player is chase
 		if (leadCard.size() != 0)
 		{
+			//getting the cheapest card
 			temp_card = getCheapestCard(leadCard[0], trumpCard);
 		}
-		else //if the player is not chase: i.e. lead
+		//if the player is not chase: i.e. lead
+		else
 		{
 			temp_card = getTacticalCard(trumpCard);
 			cout << "It is recommended that you choose " << temp_card->getCardFace() << temp_card->getCardSuit() << " because it is the best card you can play, after saving possible melds"<<endl;
@@ -62,6 +88,19 @@ unsigned int Human::play(vector<Card*> leadCard, Card* trumpCard)
 	}
 }
 
+/* *********************************************************************
+Function Name: makeMove
+Purpose: choose the card to play for the move
+Parameters:
+			none
+Return Value: none
+Local Variables:
+			cardNumber, used to store the index of the card chosen by the player
+Algorithm:
+			1) user input for the card is taken and validated
+			2) the chosen card is pushed into the playedCard vector for the player
+Assistance Received: none
+********************************************************************* */
 //player makes a move
 void Human::makeMove()
 {
@@ -71,9 +110,11 @@ void Human::makeMove()
 	displayPlayerCards(false);
 	cout << "your score till now: " << playerRoundScore << "/" << playerScore << endl;
 	cout << "Make a move(option):" << endl << endl;
+
 	//input card for the move
 	cout << "select a card to run: 0 - " << (playerHand.size() + meldPile.size() - 1) << endl;
 
+	//validate the card choice
 	cardNumber = validateMenuInput(0, (playerHand.size() + meldPile.size() - 1));
 
 	//validate cardNumber
@@ -91,10 +132,34 @@ void Human::makeMove()
 	}
 }
 
-//give player permission for a meld
+
+/* *********************************************************************
+Function Name: callMeld
+Purpose: input the meld cards and update variables
+Parameters:
+			trumpCard, contains the trump card for the round
+Return Value: none
+Local Variables:
+			numberOfMeldCards, used to store the number of cards the user wants to use for the meld
+			cardNumber, used to store the card index that the user entered
+			listOfChosenIndex, a vector used to store the cardNumbers
+			meldIndex, an integer used to store the index of the meld made
+			cardsOfAMeld, vector for the card objects for the meld
+
+Algorithm:
+			1) user input for the cards is taken and all cards are store in playedCards()
+			2) meld is evaluated using the evaluateMeld() function
+			3) cardsOfAMeld is updated based on whether the cards are in hand or meld pile
+			4) cardToMeldMap and meldToCardMap is updated with the new value of the evaluated meld
+Assistance Received: none
+********************************************************************* */
 void Human::callMeld(Card* trumpCard)
 {
 	//variable declaration
+	unsigned int numberOfMeldCards;
+	unsigned int cardNumber;
+	vector<unsigned int> listOfChosenIndex;
+	unsigned int meldIndex;
 
 	cout << "you are the winner. Do you want to call a meld?" << endl;
 	cout << "1: Yes \t";
@@ -136,19 +201,17 @@ void Human::callMeld(Card* trumpCard)
 	//display cards with hand and meld distinction
 	displayPlayerCards(true);
 
-	//once displayed choose the cards using indexes
-	unsigned int numberOfMeldCards;
-	unsigned int cardNumber;
-
+	//choose the cards using indexes
 	cout << endl << "How many cards would you like to choose?" << endl;
 	numberOfMeldCards = validateMenuInput(1, (playerHand.size() + meldPile.size()));
 
 	cout << "Please enter the index of the " << numberOfMeldCards << " cards, one by one, below:" << endl;
-	vector<unsigned int> listOfChosenIndex;
+	
 
 	//loop the number of times the user wants to enter the cards
 	while (numberOfMeldCards)
 	{
+		//take the input
 		cardNumber = validateMenuInput(0, (playerHand.size() + meldPile.size() - 1));
 
 		//push chosen cards in the playedCards vector
@@ -176,7 +239,7 @@ void Human::callMeld(Card* trumpCard)
 	}
 
 	//evaluate the meld
-	unsigned int meldIndex = evaluateMeld(trumpCard);
+	meldIndex = evaluateMeld(trumpCard);
 
 	//empty the played cards
 	playedCards.clear();
@@ -206,6 +269,7 @@ void Human::callMeld(Card* trumpCard)
 			//if the card is in meld pile
 			if ((*it - removeCount) >= playerHand.size())
 			{
+				//find the card in the cardToMeldMap
 				unordered_map<Card*, vector<unsigned int>>::iterator foundCard = cardToMeldMap.find(meldPile[*it - playerHand.size() - removeCount]);
 
 				//add the card to the list for this meld
@@ -250,8 +314,6 @@ void Human::callMeld(Card* trumpCard)
 		{
 			meldToCardMap.insert(pair<unsigned int, vector<vector<Card*>>>(meldIndex, { cardsOfAMeld }));
 		}
-
-		//increase player score
 	}
 	else
 	{

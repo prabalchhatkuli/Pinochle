@@ -1,11 +1,39 @@
 #include "Round.h"
 
+/* *********************************************************************
+Function Name: Round
+Purpose: constructor for Round class
+Parameters:
+			none
+Return Value: none
+Local Variables:
+			none
+Algorithm:
+			1)Initialize member variables with NULL for pointer values and 0 for integers
+Assistance Received: none
+********************************************************************* */
 Round::Round()
 {
-	//initializing the deck for the current round
+	//initializing the variables for the round
 	roundDeck = new Deck();
+	remainingTurns = 0;
+	trumpCard = NULL;
+	parentGame = NULL;
+	nextTurn = 0;
 }
 
+/* *********************************************************************
+Function Name: Round
+Purpose: overloaded constructor for Round class
+Parameters:
+			parentGame, a Game object. it holds the pointer to the parent game that calls the round class
+Return Value: none
+Local Variables:
+			none
+Algorithm:
+			1)sets the parentGame, and creates a new Deck
+Assistance Received: none
+********************************************************************* */
 Round::Round(Game* parentGame)
 {
 	//setting the parentGame
@@ -14,8 +42,24 @@ Round::Round(Game* parentGame)
 	//initializing the deck for the current round
 	roundDeck = new Deck();
 
+	//other member variables
+	nextTurn = 0;
+	remainingTurns = 0;
+	trumpCard = NULL;
 }
 
+/* *********************************************************************
+Function Name: displayRoundInfo
+Purpose: displays the round informational diagram
+Parameters:
+			none
+Return Value: none
+Local Variables:
+			none
+Algorithm:
+			1)display round data and data for each user by calling displayPlayerCards function
+Assistance Received: none
+********************************************************************* */
 void Round::displayRoundInfo()
 {
 	cout<<"Round:: "<< parentGame->numRounds << endl;
@@ -34,19 +78,50 @@ void Round::displayRoundInfo()
 	cout << endl << endl;;
 }
 
+/* *********************************************************************
+Function Name: startRound
+Purpose: displays and interfaces the round loop
+Parameters:
+			loadedTurns, number of turns remaining for the game round
+
+Return Value: integer value based on the user choice for the round loop
+Local Variables:
+			dealCount and playerCount, integers. helper variable for dealing cards initially
+			turnTaken, an integer. Holds the plays left in a turn.
+			coinChoice, an integer. it holds the player's choice of the coin toss for a draw game.
+			leadPlayerCard, a pointer to a Card object. It holds the card played by a lead player for the turn.
+Algorithm:
+			1) the deck is shuffled
+			2) cards are distribute to the users and trump card is taken
+			3) Round loop is started, where the first player is asked to play
+				4) Based on the player's option the integer return is made for game saves and game quits.
+				5) The cards played is processed and who won the turn is determined
+				6) The cards are pushed into the capture pile of the winner
+				7) The points for the turn is evaluated
+				8) The played cards are then processed and cleared from buffer
+				9) The winner is asked to call a meld
+				10) cards are dealth at the end of round to each player
+					11) if there are no more cards in the stockpile, the trumpCard is given to the player.
+			12) At the end of the round the based on the round score, the starting player for next round is determined
+				11) if it is a draw, a coin toss is made
+Assistance Received: none
+********************************************************************* */
 unsigned int Round::startRound(int loadedTurns)
 {
-	//variable declarations and initializations
-	//helper variable for dealing cards initially
-	unsigned int dealCount;
-
-	//**note: dealCount will only be used if new game is started
-	//initializing dealCount
-	dealCount = 0;
 
 	//if the number of loaded turns is not 12 then this is a loaded game, hence, no need to manage deck
+	//here 12 is a literal constant which determines the number of remainingTurns for the game
+	//loadedTurns of loaded rounds range from -12 to +12, while that of a new round is  always +12.
 	if (12 == loadedTurns)
 	{
+		//variable declarations and initializations
+		//helper variable for dealing cards initially
+		int dealCount;
+
+		//**note: dealCount and playerCount will only be used if new game is started
+		//initializing dealCount
+		dealCount = 0;
+
 		//shuffle cards before dealing
 		roundDeck->shuffleDeck();
 
@@ -54,7 +129,7 @@ unsigned int Round::startRound(int loadedTurns)
 		while (dealCount < 3)
 		{
 			//deal 4 cards at a time to the two users
-			int playerCount = 0;
+			unsigned int playerCount = 0;
 			while (playerCount < 2)
 			{
 				dealCardsFromDeck(parentGame->listOfPlayers[playerCount], 4);
@@ -77,9 +152,6 @@ unsigned int Round::startRound(int loadedTurns)
 	if (parentGame->winnerLastRound == 0)
 		nextTurn = 0;
 	else nextTurn = 1;
-
-	//if the player chooses an option
-	unsigned int playerRoundMenuChoice = 999;
 
 	while (-12 != remainingTurns)
 	{
@@ -219,19 +291,31 @@ unsigned int Round::startRound(int loadedTurns)
 	{
 		parentGame->winnerLastRound = (0 == nextTurn) ? 1 : 0;
 	}
-
-	//add round score of the players to game score
-
-
-	//round loop end
-	//reset player information for the end of round
-	/*parentGame->listOfPlayers[0]->resetRoundInfo();
-	parentGame->listOfPlayers[1]->resetRoundInfo();*/
 	return 0;
 }
 
-//process player moves at the end of a set of turns
-//returns the index of the winning player
+/* *********************************************************************
+Function Name: processPlayerMoves
+Purpose: to process the played cards and determining the winner of the turn
+Parameters:
+			none
+
+Return Value: the index of the winning player
+Local Variables:
+			leadCard, a card pointer. It holds the pointer to the Card of the lead player.
+			chaseCard, a card pointer. It holds the pointer to the Card of the chase player.
+
+Algorithm:
+			1) The played card both players are retrieved
+			2) if both cards are the same, the lead player wins the game
+			3) if the lead card is of trump suit and the chase is also of trump suit but higher card points, the chase player wins
+				4) else, the lead player wins
+			5)if the lead card is not of trump suit ,
+				6) if the chase card is of trump suit, chase player wins
+				7) if chase card is not of trump suit as well, and its points are higher, the chase player wins
+				8) in all other cases the leaad player wins
+Assistance Received: none
+********************************************************************* */
 unsigned int Round::processPlayerMoves()
 {
 	//note here that: nextTurn always has the value of the leading player
@@ -282,7 +366,19 @@ unsigned int Round::processPlayerMoves()
 	}
 }
 
-
+/* *********************************************************************
+Function Name: setRoundDeck
+Purpose: to set the deck based on a vector
+Parameters:
+			cards, a vector of strings. Each string is a ASCII representation of a card
+Return Value: none
+Local Variables:
+			vectorOfCards, a vector of Card pointers passed by value. it hold the Card objects translated from the vector
+Algorithm:
+			1) for each element in cards vector create a Card object
+			2) send the vector of cards to the deck
+Assistance Received: none
+********************************************************************* */
 //set the round deck
 void Round::setRoundDeck(vector<string> cards)
 {
@@ -299,7 +395,21 @@ void Round::setRoundDeck(vector<string> cards)
 	roundDeck->setDeck(vectorOfCards);
 }
 
-//deals four cards to a player
+/* *********************************************************************
+Function Name: dealCardsFromDeck
+Purpose: to deal a number of cards from deck to player hand
+Parameters:
+			currentPlayer, a Player object pointer. it holds the player to give the cards to.
+			numberOfDraws, an integer. It holds the number of cards to give to a player
+Return Value: none
+Local Variables:
+			tempCard, a pointer to act as a buffer to copy from deck to player's hand
+Algorithm:
+			1) for the numberOfDraws
+			2) deal the card into the tempCard variable
+			2) add the tempCard variable to the player's hand
+Assistance Received: none
+********************************************************************* */
 void Round::dealCardsFromDeck(Player* currentPlayer , unsigned int numberOfDraws)
 {
 	//temporary variable declarations

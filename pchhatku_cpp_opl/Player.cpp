@@ -1,19 +1,43 @@
 #include "Player.h"
 
+/* *********************************************************************
+Function Name: Player
+Purpose: to initalize member variables
+Parameters:
+			none
+
+Assistance Received: none
+********************************************************************* */
 //class constructor
 Player::Player()
 {
-	cout << "Player object created" << endl;
+	//member variable initializations
+	playerScore = 0;
+	playerRoundScore = 0;
+
 }
 
-//display all of the player's cards
+/* *********************************************************************
+Function Name: displayPlayerCards
+Purpose: to display all of the player's cards
+Parameters:
+			showDefinitions, a boolean. It holds a flag to whether display the meld cards and hand cards differently
+Return Value: none
+Local Variables:
+			none
+Algorithm:
+			1) Display the game score for the user
+			2) display hand ,meldPile, meld connections, and the string of the meld
+
+Assistance Received: none
+********************************************************************* */
 void Player::displayPlayerCards(bool showDefinitions)
 {
-	cout << "Score:" << endl;
+	cout << "Score:: ";
 	cout << getGameScore() << "/" << getRoundScore() << endl;;
 
 	cout << "Current cards::   | ";
-	//i is a counter for the cards, both hand and meld ones
+	//variable to act as a counter for the cards, both hand and meld ones
 	int i = 0;
 	if(showDefinitions) cout << "Hand: ";
 	//displaying hand cards
@@ -75,11 +99,44 @@ void Player::displayPlayerCards(bool showDefinitions)
 
 }
 
-//process/move played cards for the user after the turn has been completed
-void Player::processPlayedCards() {
-	//process played cards
-	//process the hand and meld cards,
+/* *********************************************************************
+Function Name: processPlayedCards
+Purpose: to process/move played cards for the user after the turn has been completed
+Parameters:
+			none
+Return Value: none
+Local Variables:
+			ip, iterator of a vector od Card pointer. it holds the iterator of position of played card in the player hand.
+			im, an iterator for map. it holds the iterator position of the played card in the cardToMeldMap.
+			tempMeld, an integer. It holds the value of the meld currently being evaluated.
+			isFound, a boolean. It flags whether a certain cards in a meld is in any other active meld.
+			iv, an iterator for a vector of cards. It holds the position of the playedCard in a vector inside a meldToCardMap entry.
+Algorithm:
+			1) find the playedCard in the playerHand
+			2) if the card is found
+				3) find the card in cardToMeldMap
+				4) if the card is found
+					5) erase the entry from the map
+				6) Then, erase it from the hand
+			7)else, the card is in the meldPile
+				8) find the card in cardToMeldMap
+				9) for each of the mentioned meld(tempMeld) for this card
+					10) iterate the respective entry in meldToCardMap
+						11) for each meld in the entry, find the played card in the vector
+						12) if it is found
+							13) for all other cards
+								14) get the cardToMeldMap entry
+								15) Then go to each of the mentioned meld
+								16) for each of the meld that is not tempMeld
+									17) find the card in the entry for meldToCardMap
+									18) if it is found then do not take the card to the handPile
+									19) else, remove it from the meldPile and the HandPile 
+						20) finally, remove this entry from the meldToCarMap
 
+Assistance Received: none
+********************************************************************* */
+void Player::processPlayedCards() {
+	//process played cards, hand, and meld cards,
 	//if the played card is in hand pile: 1)it can either be only part of a hand, 2) it can be part of a hand and an earlier meld
 	vector<Card*>::iterator ip = std::find(playerHand.begin(), playerHand.end(), playedCards[0]);
 	if (ip != playerHand.end())
@@ -112,7 +169,7 @@ void Player::processPlayedCards() {
 			{
 				vector<Card*>::iterator iv = find(((meldToCardMap[tempMeld])[j]).begin(), ((meldToCardMap[tempMeld])[j]).end(), playedCards[0]);
 				
-				//iv is the iterator to the found vector: this needs to be erased from ((meldToCardMap[tempMeld])[j])
+				//iv is the iterator to the found vector
 				if (iv != ((meldToCardMap[tempMeld])[j]).end())
 				{
 					//for all other cards in this vector: we need to decide whether to send them to the hand or not
@@ -167,7 +224,7 @@ void Player::processPlayedCards() {
 							if (findInMeldIterator != meldPile.end())
 								meldPile.erase(findInMeldIterator);
 							else
-								cout << "Error!! not found in the pile" << endl;
+								cerr << "Error!! not found in the pile" << endl;
 						}
 						//else do nothing
 					}
@@ -187,16 +244,43 @@ void Player::processPlayedCards() {
 			meldPile.erase(ix);
 		}
 		else
-			cout<<"error in deletin the chosen card"<<endl;
+			cerr<<"error in deleting the chosen card"<<endl;
 	}
 
 }
 
-//evaluates meld from the played cards
+/* *********************************************************************
+Function Name: evaluateMeld
+Purpose: to evaluate the meld from the played cards
+Parameters:
+			trumpCard, a Card object pointer. it holds the pointer to the trump card.
+Return Value: the integer denoting the type of meld
+Local Variables:
+			possibleMeld, an integer. It holds the integer representation of the meld formed. Initialized to 0.
+			cardsInMeldPile, an integer. It hold the number of cards chosen for the meld that were at sometime in the meldPile.
+			foundCard, an iterator for a map. it hold the entry of the card found in the cardToMeldMap.
+
+Algorithm:
+			1) first count the number of cards that are in the cardToMeldMap to see if they were ever used in a meld
+			2) if the count is equal to the total number of played cards, then no new cards were used to form the meld, the meld is not possible
+			3) the cards are then sorted indescending order based on their points
+			4) based on the number of cards chosen and the faces and suits of cards the possibleMeld is determined
+			
+			5) if the cound of cardsInMeldPile is not zero then all cards are found in cardToMeldMap
+				6) for each found card, find the possibleMeld in the list of melds, if it is found no melds can be made.
+			6)return the possibleMeld
+
+Assistance Received: none
+********************************************************************* */
 unsigned int Player::evaluateMeld(Card* trumpCard)
 {
-	//check if at least one card has been used from the hand, otherwise do not continue, show that meld cannot happen
+	//variable to store the index of the possible meld
+	unsigned int possibleMeld = 0;
+
+	//variable to store the number of cards used in previous melds
 	unsigned int cardsInMeldPile = 0;
+
+	//check if at least one card has been used from the hand, otherwise do not continue, show that meld cannot happen
 	for (vector<Card*>::iterator it = playedCards.begin(); it != playedCards.end(); ++it)
 	{
 		//if all the cards can be found in the card to meld map, then no cards from hand has been used
@@ -219,14 +303,7 @@ unsigned int Player::evaluateMeld(Card* trumpCard)
 		return (lhs)->getCardPoints() > (rhs)->getCardPoints();
 	});
 
-	/*cout << "sorted chosen cards" << endl;
-	for (vector<Card*>::iterator it = playedCards.begin(); it != playedCards.end(); ++it)
-	{
-		cout << " " << (*it)->getCardFace() << (*it)->getCardSuit() << " | ";
-	}*/
-
-	//variable to store the index of the possible meld
-	unsigned int possibleMeld = 0;
+	
 
 	//find which meld is possible from the available cards
 	switch (playedCards.size())
@@ -384,7 +461,8 @@ void Player::decideMeld(Card* trumpCard)
 	listOfPlayableCards.insert(listOfPlayableCards.end(), playerHand.begin(), playerHand.end());
 	listOfPlayableCards.insert(listOfPlayableCards.end(), meldPile.begin(), meldPile.end());
 
-	listOfPossibleMelds.clear();// variable that stores pair of a vector and its points
+	// variable that stores pair of a vector and its points
+	listOfPossibleMelds.clear();
 
 	//find all possible melds from the remaining list of cards
 	unsigned int possibleScore = findPossibleScores(listOfPlayableCards, trumpCard);
@@ -548,20 +626,13 @@ void Player::decideMeld(Card* trumpCard)
 Card* Player::getCheapestCard(Card* leadCard, Card* trumpCard)
 {
 	//find all playable cards which will win the turn
-	vector<Card*> winningCards = findPlayableCards(leadCard, trumpCard); //winning cards will have all cards, if no winning cards present
+	vector<Card*> winningCards = findPlayableCards(leadCard, trumpCard);
 
 	//sort them based on points on ascending order
 	sort(winningCards.begin(), winningCards.end(), [](Card* &lhs, Card* &rhs)
 	{
 		return (lhs)->getCardPoints() < (rhs)->getCardPoints();
 	});
-
-	//print for debug
-	cout << endl << "Winning cards" << endl;
-	for (int i = 0; i < winningCards.size(); i++)
-	{
-		cout << winningCards[i]->getCardFace() << winningCards[i]->getCardSuit()<<" ";
-	}
 
 	//find the first card on the vector that is not of trump suit
 	for (int i = 0; i < winningCards.size(); i++)
@@ -669,16 +740,6 @@ Card* Player::getTacticalCard(Card* trumpCard)
 			return cardsWithMaxPoints[i];
 		}
 	}
-
-	//remove the card from this index and insert into played cards
-	/*for (int i = 0; i < cardsWithMaxPoints.size(); i++)
-	{
-		if (cardsWithMaxPoints[i]->getCardSuit() == trumpCard->getCardSuit())
-		{
-			cout << "retruned from 2:" << endl;
-			return cardsWithMaxPoints[i];
-		}
-	}*/
 	
 	return cardsWithMaxPoints[0];
 
@@ -844,7 +905,17 @@ void Player::utilityForMeldCombinations(vector<Card*> listOfCards, unsigned int 
 	utilityForMeldCombinations(listOfCards, sizeOfListOfCards, sizeOfCombinations, indexForDataVector, dataVector, indexForMainList + 1, scoreForThisList, trumpCard);
 }
 
-//method to set Player hand
+/* *********************************************************************
+Function Name: setPlayerHand
+Purpose: to set Player hand
+Parameters:
+		cards, a vector of strings passed by value. It holds the player hand in string representation from the loaded file.
+Return Value:
+		none
+Local Variables: 
+Algorithm:
+Assistance Received: none
+********************************************************************* */
 void Player::setPlayerHand(vector<string> cards) {
 	//vector to store the card objects
 	vector<Card*> vectorOfCards;
@@ -984,7 +1055,17 @@ void Player::setMeldPile(vector<vector<string>> meldCards, Card* trumpCard)
 	cardToMeldMap.insert(cardToMeldMapBuffer.begin(), cardToMeldMapBuffer.end());
 }
 
-//method to set played Cards
+/* *********************************************************************
+Function Name: validateMenuInput
+Purpose: to set capture pile cards for a player, when the game is loaded
+Parameters:
+		cards, a vector of strings passed by value. It holds the capture pile in string representation from the loaded file.
+Return Value:
+		none
+Local Variables:
+Algorithm:
+Assistance Received: none
+********************************************************************* */
 void Player::setCapturePile(vector<string> cards)
 {
 	//vector to store the card objects
@@ -1001,7 +1082,28 @@ void Player::setCapturePile(vector<string> cards)
 	playerCapturePile = vectorOfCards;
 }
 
-//get a string representation of the player's string
+/* *********************************************************************
+Function Name: validateMenuInput
+Purpose: To get a string representation of the player's melds
+Parameters:
+		none
+Return Value:
+		the generated string for the melds of a player
+Local Variables:
+			meldString,  a string. It holds the string generated for a user
+			currentMeld, an integer. It holds the value of the current meld that is being evaluated
+Algorithm:
+			1) get each currentMeld from the meldToCard Map
+			2) for all such melds, get the list of list of cards which make up a meld
+			3) for each list which is a single meld do the following
+				4) for each card in the list
+					5) add the face and suit to the meldString
+					6) for each such meld
+						7) check to see if there is another meld other than the currentMeld
+						8) Then check if this new meld is still active in the meldToCardMap
+						9) if it is active add an asterisk in the meldString
+Assistance Received: none
+********************************************************************* */
 string Player::getMeldString()
 {
 	//declaring and initializing string variable to combine the melds
@@ -1079,7 +1181,25 @@ string Player::getMeldString()
 	return meldString;
 }
 
-//validation function
+/* *********************************************************************
+Function Name: validateMenuInput
+Purpose: To validate input based on a given range of integers
+Parameters:
+		start, an integer. It holds the start value of the range of input.
+		stop, an integer. It holds the stop value of the range of input.
+Return Value:
+		the validated input made by the user
+Local Variables:
+			menuSelection, a integer value to store the final value of user input.
+			tempMenuSelection, a string to store the line from the cin stream.
+			invalidInput, a flag to see if the input is valid.
+
+Algorithm:
+			1) gets the line from user's input and stores in tempMenuSelection
+			2)	tries to convert it into an integer and repeatedly checks if it is within the given range
+
+Assistance Received: none
+********************************************************************* */
 unsigned int Player::validateMenuInput(unsigned int start, unsigned int end)
 {
 	//declaring and initializing menu selection variables
@@ -1115,4 +1235,52 @@ unsigned int Player::validateMenuInput(unsigned int start, unsigned int end)
 	} while (!(menuSelection >= start && menuSelection <= end && invalidInput == false));
 
 	return menuSelection;
+}
+
+/* *********************************************************************
+Function Name: resetRoundInfo
+Purpose: to reset the information of the user for the round
+Parameters:
+			none
+Return Value: none
+Local Variables:
+			none
+Algorithm:
+			1) for each container of card object(hand, meld, capture piles), the cards are deallocated
+			2) for information like score is set to zero
+			3) Then all containers are reset
+Assistance Received: none
+********************************************************************* */
+void Player::resetRoundInfo()
+{
+	//delete all cards from playerHand
+	for (int i = 0; i < playerHand.size(); i++)
+	{
+		delete (playerHand[i]);
+	}
+	//delete all cards from player meldpile
+	for (int i = 0; i < meldPile.size(); i++)
+	{
+		delete (meldPile[i]);
+	}
+	//delete all from capturepile
+	for (int i = 0; i < playerCapturePile.size(); i++)
+	{
+		delete (playerCapturePile[i]);
+	}
+
+	//reset the containers
+	playerHand.clear();
+	meldPile.clear();
+	playedCards.clear();
+	playerCapturePile.clear();
+
+	playerRoundScore = 0;
+	cardToMeldMap.clear();
+	meldToCardMap.clear();
+}
+
+Player::~Player()
+{
+	resetRoundInfo();
 }

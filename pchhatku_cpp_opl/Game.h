@@ -32,9 +32,6 @@ public:
 	//method for quitting the game
 	void quitGame();
 
-	//Game Info method
-	void getGameInfo();
-
 	//input validation method for menu inputs
 	unsigned int validateMenuInput(unsigned int start, unsigned int end);
 
@@ -46,6 +43,10 @@ public:
 		{
 			delete listOfPlayers[i];
 		}
+		//delete the current round
+		delete currentRound;
+
+		//gratitude
 		cout << "Thank you for playing :) " << endl;
 	};
 

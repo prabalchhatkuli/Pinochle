@@ -10,9 +10,6 @@ public:
 	//class constructor
 	Computer();
 
-	//destructor
-	//~Human() {};
-
 	//function to start the game for the player
 	unsigned int play(vector<Card*>, Card*);
 

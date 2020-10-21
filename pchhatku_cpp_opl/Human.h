@@ -10,9 +10,6 @@ public:
 	//class constructor
 	Human();
 
-	//destructor
-	//~Human() {};
-
 	//function to start the game for the player
 	unsigned int play(vector<Card*>, Card*);
 
@@ -22,6 +19,5 @@ public:
 	//method to call a meld
 	void callMeld(Card*);
 
-private:
 
 };

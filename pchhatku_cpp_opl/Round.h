@@ -61,10 +61,8 @@ public:
 	//class destructor
 	~Round()
 	{
-		cout << "delelting round deck" << endl;
-		cout << this->roundDeck << endl;
-		this->roundDeck->DisplayDeck();
 		delete roundDeck;
+		delete trumpCard;
 	}
 
 private:

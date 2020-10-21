@@ -1,14 +1,37 @@
 #include "Computer.h"
 
-//class constructor
+/* *********************************************************************
+Function Name: Computer
+Purpose: class constructor
+Parameters:
+			none
+Return Value: none
+Local Variables:
+			none
+Algorithm:
+			1) set the player name
+Assistance Received: none
+********************************************************************* */
 Computer::Computer()
 {
-	cout << "Computer player object created"<<endl;
 	playerName = "C";
 }
 
-//play function for human
-//make a move for the player
+
+/* *********************************************************************
+Function Name: play
+Purpose: play function for Computer
+Parameters:
+			leadCard, vector possibly containing the card chosen by leadcard
+			trumpCard, trumpCard for the round
+Return Value: an integer that contains the choice made by the player during the play function
+Local Variables:
+			turnChoice, an integer array used to store the choice made by the user
+Algorithm:
+			1) take user input for menu choices
+			2) route the user to other function based on the choice
+Assistance Received: none
+********************************************************************* */
 unsigned int Computer::play(vector<Card*> leadCard, Card* trumpCard)
 {
 	//variablt to store what the user did in their turn
@@ -44,7 +67,20 @@ unsigned int Computer::play(vector<Card*> leadCard, Card* trumpCard)
 	}
 }
 
-//player makes a move
+/* *********************************************************************
+Function Name: makeMove
+Purpose: choose the card to play for the move
+Parameters:
+			none
+Return Value: none
+Local Variables:
+			none
+Algorithm:
+			1) determine whether the computer is lead or chase player
+			2) based on that, call respective function
+			3) add move cars to playedCards list
+Assistance Received: none
+********************************************************************* */
 void Computer::makeMove(vector<Card*> leadCard, Card* trumpCard)
 {
 	//decide which card to play on its turn
@@ -70,6 +106,18 @@ void Computer::makeMove(vector<Card*> leadCard, Card* trumpCard)
 }
 
 //give player permission for a meld
+/* *********************************************************************
+Function Name: callMeld
+Purpose: get 
+Parameters:
+			trumpCard, contains the trump card for the round
+Return Value: none
+Local Variables:
+			none
+Algorithm:
+			1) call the decideMeld function, which will evaluate, decide, and execute melds for computer
+Assistance Received: none
+********************************************************************* */
 void Computer::callMeld(Card* trumpCard)
 {
 	//call decideMeld

@@ -73,13 +73,7 @@ public:
 	//virtual void makeMove() = 0;
 
 	//method to reset all information stored for the user for a round
-	void resetRoundInfo() { playerHand.clear();
-							meldPile.clear();
-							playedCards.clear();
-							playerRoundScore = 0;
-							cardToMeldMap.clear();
-							meldToCardMap.clear();
-							playerCapturePile.clear();}
+	void resetRoundInfo();
 
 	//method to reset capture pile
 
@@ -119,6 +113,9 @@ public:
 
 	//utility function to recurse and evaluate scores
 	void utilityForMeldCombinations(vector<Card*>, unsigned int, unsigned int, unsigned int, vector<Card*>, unsigned int, unsigned int&, Card*);
+
+	//class destructor
+	~Player();
 
 protected:
 	//variable declarations
